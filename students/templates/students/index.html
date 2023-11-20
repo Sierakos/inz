@@ -34,7 +34,7 @@
                           <td>{{ student.field_of_study }}</td>
                           <td>{{ student.gpa }}</td>
                           <td>
-                            <button type="button" class="btn btn-sm btn-success me-1" href="{% url 'view_student' student.id %}" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-sm btn-outline-success me-1" href="{% url 'view_student' student.id %}" data-bs-toggle="modal"
                             data-bs-target="#myModal{{ student.id }}">
                             <i class="fa-solid fa-circle-info fa-lg"></i>
                           </button>
@@ -68,9 +68,35 @@
                               </div>
                             </div>
                           </div>
-                          <a href="{% url 'edit' student.id %}" class="btn gtn-warning me-1">
+                          <a href="{% url 'edit' student.id %}" class="btn btn-outline-warning me-1">
                             <i class="fa-solid fa-pen"></i>
                           </a>
+                          <a class="btn btn-outline-danger me-1" data-bs-toggle="modal"
+                          data-bs-target="#myModalDelete{{ student.id }}">
+                            <i class="fa-solid fa-x"></i>
+                          </a>
+                          <!-- Modal - View Student -->
+                          <div class="modal" id="myModalDelete{{student.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title">
+                                    Czy na pewno chcesz usunąc ucznia?: {{ student.first_name }} {{ student.last_name }}
+                                  </h5>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true"></span>
+                                  </button>
+                                </div>
+                                <div class="modal-footer">
+                                  <form action="{% url 'delete' student.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger" data-bs-dismiss="modal">Tak</button>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Nie</button>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                           </td>
                         </tr>
                       {% endfor %}

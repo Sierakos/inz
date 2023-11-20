@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from .models import Student
 from .forms import StudentForm
@@ -61,3 +61,8 @@ def edit(request, id):
     return render(request, 'students/edit.html', {
         'form': form
     })
+
+def delete(request, id):
+    student = Student.objects.get(pk=id)
+    student.delete()
+    return redirect('index')
