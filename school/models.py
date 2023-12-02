@@ -14,6 +14,9 @@ class School (models.Model):
 class Specjalization(models.Model):
     Specjalization_name = models.CharField(max_length=50)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.Specjalization_name
     
 class Class(models.Model):
     CLASS_CHOICES = [
@@ -32,8 +35,17 @@ class Class(models.Model):
     ]
 
     class_name = models.CharField(max_length=10, choices=CLASS_CHOICES)
-    class_letter = models.CharField(max_length=1, choice=CLASS_LETTER_CHOICES)
+    class_letter = models.CharField(max_length=1, choices=CLASS_LETTER_CHOICES)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
-    specialization = 
+    specialization = models.ForeignKey(Specjalization, blank=True, null=True, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return f"{self.class_name} {self.class_letter} - {self.school}"
+
+class Subject(models.Model):
+    subject_name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.subject_name
 
 
