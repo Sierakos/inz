@@ -1,59 +1,152 @@
 from django import forms
 from django.forms.widgets import DateInput, TextInput
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from .models import *
+from school.models import School, Class
 
-class FormSettings(forms.ModelForm):
+from students.models import Student
+from teachers.models import Teacher
+from subjects.models import Subject
+
+import re
+
+class CreateUserForm(UserCreationForm):
+    USER_TYPE_CHOICES = (("Admin", "Admin"), ("Staff", "Staff"), ("Teacher", "Teacher"), ("Student", "Student"), ("Parent", "Parent"))
+    GENDER_CHOICES = [("M", "Male"), ("F", "Female")]
+
+    username = forms.CharField(label='Login', 
+                widget=forms.TextInput(attrs={'placeholder': 'Login', 'class': 'form-control'}))
+
+    email = forms.EmailField(label='Email',
+        widget=forms.EmailInput(attrs={'placeholder': 'Email', 'class': 'form-control'}),
+        error_messages={'invalid': 'Twój email jest nieprawidłowy'})
+
+    first_name = forms.CharField(label='Imię', 
+                widget=forms.TextInput(attrs={'placeholder': 'Imię', 'class': 'form-control'}))
+
+    last_name = forms.CharField(label='Nazwisko', 
+                widget=forms.TextInput(attrs={'placeholder': 'Nazwisko', 'class': 'form-control'}))
+
+    address = forms.CharField(label='Adres zamieszkania', 
+                widget=forms.TextInput(attrs={'placeholder': 'Adres Zamieszkania', 'class': 'form-control'}))
+
+    user_type = forms.ChoiceField(label='Typ użytkownika',
+                choices=USER_TYPE_CHOICES,
+                widget=forms.Select(attrs={'placeholder': 'Typ użytkownika', 'class': 'form-control'}))
+
+    gender = forms.ChoiceField(label='Płeć',
+                choices=GENDER_CHOICES,
+                widget=forms.Select(attrs={'placeholder': 'Płeć', 'class': 'form-control'}))
+
+    password1 = forms.CharField(label='Hasło',
+        widget=forms.PasswordInput(attrs={'placeholder': 'Hasło', 'class': 'form-control'}))
+
+    password2 = forms.CharField(label='Powtórz hasło',
+        widget=forms.PasswordInput(attrs={'placeholder': 'Powtórz Hasło', 'class': 'form-control'}))
+
     def __init__(self, *args, **kwargs):
-        super(FormSettings, self).__init__(*args, **kwargs)
-        # Here make some changes such as:
-        for field in self.visible_fields():
-            field.field.widget.attrs['class'] = 'form-control'
+        super(UserCreationForm, self).__init__(*args, **kwargs)
 
-class CustomUserForm(FormSettings):
-    email = forms.EmailField(required=True)
-    gender = forms.ChoiceField(choices=[('M', 'Male'), ('F', 'Female')])
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
-    password = forms.CharField(widget=forms.PasswordInput)
-    widget = {
-        'password': forms.PasswordInput(),
-    }
+        for fieldname in ['username', 'email', 'password1', 'password2']:
+            self.fields[fieldname].help_text = None
+            self.fields[fieldname].required = False
 
-    def __init__(self, *args, **kwargs):
-        super(CustomUserForm, self).__init__(*args, **kwargs)
-
-        if kwargs.get('instance'):
-            instance = kwargs.get('instance').admin.__dict__
-            self.fields['password'].required = False
-            for field in CustomUserForm.Meta.fields:
-                self.fields[field].initial = instance.get(field)
-            if self.instance.pk is not None:
-                self.fields['password'].widget.attrs['placeholder'] = "Fill this only if you wish to update password"
-
-    def clean_email(self, *args, **kwargs):
-        formEmail = self.cleaned_data['email'].lower()
-        if self.instance.pk is None:  # Insert
-            if CustomUser.objects.filter(email=formEmail).exists():
-                raise forms.ValidationError(
-                    "The given email is already registered")
-        else:  # Update
-            dbEmail = self.Meta.model.objects.get(
-                id=self.instance.pk).admin.email.lower()
-            if dbEmail != formEmail:  # There has been changes
-                if CustomUser.objects.filter(email=formEmail).exists():
-                    raise forms.ValidationError("The given email is already registered")
-
-        return formEmail
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'email', 'gender',  'password']
+        fields = ('username', 'email', 'first_name', 'last_name', 'address', 'gender', 'user_type', 'password1', 'password2', 'teacher_subject')
 
-class StaffForm(CustomUserForm):
-    def __init__(self, *args, **kwargs):
-        super(StaffForm, self).__init__(*args, **kwargs)
+    def clean_username(self, *args, **kwargs):
+        username = self.cleaned_data.get('username')
+        if CustomUser.objects.filter(username=username).exists():
+            raise forms.ValidationError("Ta nazwa użytkownika już istnieje. Wybierz inną.")
+        if not len(username) >= 5:
+            raise forms.ValidationError("Nazwa użytkownika musi mieć conajmniej 5 znaków.")
+        if re.search('\s', username):
+            raise forms.ValidationError("Nazwa użytkownika nie może zawierać spacji.")
+        if re.search("[!@#$%^&*(),.?\":{}|<>\\/;'[\]-\]]", username):
+            raise forms.ValidationError("Nazwa użytkownika nie może zawierać znaków specjalnych oprócz _ (podłogi).")
 
-    class Meta(CustomUserForm.Meta):
-        model = Staff
-        fields = CustomUserForm.Meta.fields
+        return username
+    
+    def clean_email(self, *args, **kwargs):
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exists():
+            raise forms.ValidationError("Użytkownik z tym adresem email już istnieje.")
+        return email
+
+    def clean_password1(self, *args, **kwargs):
+        password1 = self.cleaned_data.get('password1')
+        if not re.search('[0-9]', password1):
+            print("wchodze tutaj")
+            raise forms.ValidationError("Twoje hasło musi zawierać przynajmniej jedną cyfrę.")
+        if not len(password1) >= 8:
+            raise forms.ValidationError("Twoje hasło musi mieć conajmniej 8 znaków.")
+
+        return password1
+
+    def clean_password2(self, *args, **kwargs):
+        password1 = self.cleaned_data.get('password1')
+        password2 = self.cleaned_data.get('password2')
+
+        if not password2:
+            raise forms.ValidationError("Potwierdź swoje hasło.")
+        if password1 != password2:
+            raise forms.ValidationError("Twoje hasła muszą być takie same.")
+
+        return password2
+
+class CreateStudentForm(forms.Form):
+
+    class_id = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        label='Wybierz klasę',
+        empty_label='Wybierz klasę',
+        required=False,
+        widget=forms.Select(attrs={'placeholder': 'Klasa', 'class': 'form-control'}),
+    )
+
+class CreateTeacherForm(forms.Form):
+
+    subjects = forms.ModelMultipleChoiceField(
+        queryset=Subject.objects.all(),
+        label='Wybierz Przedmioty prowadzone przez nauczyciela',
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+class CreateParentForm(forms.Form):
+
+    class_id = forms.ModelChoiceField(
+        queryset=Class.objects.all(),
+        label='Wybierz klasę',
+        empty_label='Wybierz klasę',
+        required=False,
+        widget=forms.Select(attrs={'placeholder': 'Klasa', 'class': 'form-control'}),
+    )
+
+
+
+# LOGIN
+
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(label='Login',
+                            widget=forms.TextInput(attrs={'placeholder': 'Login', 'class': 'form-control'}),
+                            required=False)
+    password=forms.CharField(label='Hasło',
+                            widget=forms.PasswordInput(attrs={'placeholder': 'Hasło', 'class': 'form-control'}),
+                            required=False)
+
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'password']
+
+    # def clean(self, *args, **kwargs):
+    #     username = self.cleaned_data.get("username")
+    #     password = self.cleaned_data.get("password")
+    #     if username and password:
+    #         user = authenticate(username=username, password=password)
+    #         if not user:
+    #             # raise forms.ValidationError("Hasło lub login jest niepoprawne")
+    #             pass

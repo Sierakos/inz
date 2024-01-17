@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Admin, Staff, Teacher, Student, Parent
+from .models import CustomUser, Admin
 from django.contrib.auth.models import User
 
 from django.utils.translation import gettext, gettext_lazy as _
@@ -37,7 +37,3 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Admin)
-admin.site.register(Staff)
-admin.site.register(Teacher)
-admin.site.register(Student)
-admin.site.register(Parent)

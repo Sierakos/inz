@@ -1,14 +1,32 @@
 from django.db import models
 
-# Create your models here.
+from accounts.models import CustomUser
+from school.models import Class
+
+# signals
+from django.dispatch import receiver
+from django.db.models.signals import post_save, post_delete
 
 class Student(models.Model):
-    student_number = models.PositiveIntegerField()
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
-    email = models.EmailField(max_length=100)
-    field_of_study = models.CharField(max_length=100)
-    gpa = models.FloatField()
+    student = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    class_id = models.ForeignKey(Class, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return f'Student: {self.first_name} {self.last_name}'
+        return self.student.last_name + " " + self.student.first_name
+
+@receiver(post_save, sender=CustomUser)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        if instance.user_type == "Student":
+            Student.objects.create(student=instance)
+
+
+@receiver(post_save, sender=CustomUser)
+def save_user_profile(sender, instance, **kwargs):
+    if instance.user_type == "Student":
+        instance.student.save()
+
+@receiver(post_delete, sender=Student)
+def delete_user(sender, instance, **kwargs):
+    if instance.student:
+        instance.student.delete()
