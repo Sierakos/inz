@@ -22,3 +22,18 @@ class CreateAssigment(forms.Form):
     weight = forms.ChoiceField(label='Waga oceny',
                 choices=WEIGHT_CHOICES,
                 widget=forms.Select(attrs={'placeholder': 'Waga oceny', 'class': 'form-control'}))
+    
+class GradeForm(forms.Form):
+    GRADE_CHOICES = ((1, 1), (1.5, 1.5), (2, 2), (2.5, 2.5), (3, 3), (3.5, 3.5), (4, 4), (4.5, 4.5), (5, 5), (5.5, 5.5), (6, 6))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for assigment_id in self.initial.get('assigment_ids', []):
+            field_name = f'grade_{assigment_id}'
+            self.fields[field_name] = forms.ChoiceField(
+                label='Ocena',
+                choices=self.GRADE_CHOICES,
+                required=False,
+                widget=forms.Select(attrs={'class': 'form-control'})
+            )
+    

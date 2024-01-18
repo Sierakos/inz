@@ -44,7 +44,7 @@
                     <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create_assigment{{lesson.id}}">
                       dodaj test
                     </button>
-                    <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'gradebook' pk=lesson.class_id__class_name letter=lesson.class_id__class_letter subject=lesson.subject_id__subject_name %}'">
+                    <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'gradebook' classroom=lesson.class_id__class_name letter=lesson.class_id__class_letter subject=lesson.subject_id__subject_name %}'">
                       otwórz dziennik
                     </button>
                   {% endif %}
