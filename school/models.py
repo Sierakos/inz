@@ -1,10 +1,11 @@
 from django.db import models
 
 from teachers.models import Teacher
+from subjects.models import Subject
 
 # Create your models here.
 
-class School (models.Model):
+class School(models.Model):
     name = models.CharField(max_length=100, unique=True)
     city = models.CharField(max_length=100, unique=False)
     post_code = models.CharField(max_length=10, unique=False)
@@ -12,6 +13,27 @@ class School (models.Model):
 
     def __str__(self):
         return self.name
+    
+class Term(models.Model):
+    TERM_CHOICES = [
+        ('1', 'semestr 1'),
+        ('2', 'semestr 2')
+    ]
+
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    term_name = models.CharField(max_length=15, choices=TERM_CHOICES)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.term_name} - {self.school}"
+
+class SubjectTerm(models.Model):
+    term = models.ForeignKey(Term, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.term} {self.subject}"
     
 class Class(models.Model):
     CLASS_CHOICES = [
@@ -39,5 +61,8 @@ class Class(models.Model):
 
 class Classroom(models.Model):
     room_number = models.CharField(max_length=10)
+
+    def __str__(self):
+        return f"{self.room_number}"
 
 
