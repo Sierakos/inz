@@ -265,12 +265,12 @@
                                     <td>{{ student.id }}</td>
                                     <td>{{ student.student.first_name }}</td>
                                     <td>{{ student.student.last_name }}</td>
-                                    {% for key, month_number in terms.items %}
+                                    {% for key, term_number in terms.items %}
                                       <td>
                                         <!--
                                           Oceny dla semestru
                                         -->
-                                        {% for grade in grades %}
+                                        {% for grade, term in grades_with_terms.items %}
                                           {% comment %} {% if grade.student.id == student.id and subject == grade.subject and month_number == grade.get_created_month %}
                                             <div class="tooltip-grade grade-value-{{grade.assigment.weight}}" data-bs-toggle="modal" data-bs-target="#grade_details_{{grade.id}}">
                                               {{ grade.display_value }}
@@ -278,7 +278,7 @@
                                                 {{ grade.description }}
                                               </span>
                                             </div> {% endcomment %}
-                                            {% if grade.student.id == student.id and subject == grade.subject %}
+                                            {% if grade.student.id == student.id and subject == grade.subject and term == term_number %}
                                               <div class="tooltip-grade grade-value-{{grade.assigment.weight}}" data-bs-toggle="modal" data-bs-target="#grade_details_{{grade.id}}">
                                                 {{ grade.display_value }}
                                                 <span class="tooltiptext-grade-desc">

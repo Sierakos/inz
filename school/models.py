@@ -14,27 +14,40 @@ class School(models.Model):
     def __str__(self):
         return self.name
     
-class Term(models.Model):
-    TERM_CHOICES = [
-        ('1', 'semestr 1'),
-        ('2', 'semestr 2')
-    ]
+# class Term(models.Model):
+#     TERM_CHOICES = [
+#         ('1', 'semestr 1'),
+#         ('2', 'semestr 2')
+#     ]
 
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
-    term_name = models.CharField(max_length=15, choices=TERM_CHOICES)
-    start_date = models.DateField()
-    end_date = models.DateField()
+#     school = models.ForeignKey(School, on_delete=models.CASCADE)
+#     term_name = models.CharField(max_length=15, choices=TERM_CHOICES)
+#     start_date = models.DateField()
+#     end_date = models.DateField()
 
-    def __str__(self):
-        return f"{self.term_name} - {self.school}"
+#     def __str__(self):
+#         return f"{self.term_name} - {self.school}"
 
-class SubjectTerm(models.Model):
-    term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+# class SubjectTerm(models.Model):
+#     term = models.ForeignKey(Term, on_delete=models.CASCADE)
+#     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.term} {self.subject}"
+#     def __str__(self):
+#         return f"{self.term} {self.subject}"
     
+class Term(models.Model):
+    term_year_start = models.IntegerField()
+    term_year_end = models.IntegerField()
+
+    term_start_sem_1 = models.DateField()
+    term_end_sem_1 = models.DateField()
+
+    term_start_sem_2 = models.DateField()
+    term_end_sem_2 = models.DateField()
+    
+    def __str__(self):
+        return f"{self.term_year_start}/{self.term_year_end} | semestr 1: {self.term_start_sem_1} - {self.term_end_sem_1} | semestr 2: {self.term_start_sem_2} - {self.term_end_sem_2}"
+
 class Class(models.Model):
     CLASS_CHOICES = [
         ('1', 'Klasa 1'),

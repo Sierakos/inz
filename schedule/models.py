@@ -25,7 +25,7 @@ class Lesson(models.Model):
     end_time = models.TimeField()
 
     def __str__(self):
-        return f"{self.class_id} {self.subject_id} {self.day} {self.start_time} - {self.end_time} / {self.term_id.term_name}"
+        return f"{self.class_id} {self.subject_id} {self.day} {self.start_time} - {self.end_time} / {self.term_id}"
     
     @classmethod
     def get_lessons_with_correct_term(cls, id):

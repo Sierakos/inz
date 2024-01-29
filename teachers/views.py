@@ -10,6 +10,10 @@ from subjects.models import Subject
 
 from .forms import CreateAssigment
 
+from datetime import datetime
+
+from .utils import *
+
 @login_required
 def teacher_subjects_view(request):
     user = request.user
@@ -49,17 +53,21 @@ def gradebook_view(request, classroom, letter, subject_name):
     
     grades = Grade.objects.filter(student__in=students, teacher=request.user.teacher, subject=subject)
 
-    dist_lessons = Lesson.objects.filter(class_id=classroom_id).values(
+    actual_lesson = Lesson.objects.filter(class_id = classroom_id, subject_id=subject).values(
         'class_id',
         'class_id__class_name',
         'class_id__class_letter',
         'class_id__school',
         'teacher_id',
-        'subject_id__subject_name').distinct()
+        'subject_id__subject_name',
+        'term_id').distinct()
+
+    ### wez semestr z danego przedmiotu
+    ### potrzebne do ustalenia dziennika od kiedy
+    ### do kiedy jest pierwszy oraz drugi semestr
+    term = Term.objects.get(id=actual_lesson[0]['term_id'])
     
-    lessons = Lesson.objects.all()
-    
-    print(lessons)
+
 
     months_values = {
         'Styczeń': 1,
@@ -75,13 +83,31 @@ def gradebook_view(request, classroom, letter, subject_name):
         'Semestr_2': 2
     }
 
+    grades_with_terms = {}
+    for grade in grades:
+        convert_grade_date = grade.created_at.date()
+        print(convert_grade_date)
+        print(term.term_start_sem_2)
+        if between(convert_grade_date, term.term_start_sem_1, term.term_end_sem_1) == True:
+            grades_with_terms[grade] = terms['Semestr_1']
+        elif between(convert_grade_date, term.term_start_sem_2, term.term_end_sem_2) == True:
+            grades_with_terms[grade] = terms['Semestr_2']
+        else:
+            pass
+
+    print(grades_with_terms)
+
+    
+
     context = {
             'students': students,
             'subject': subject,
             'grades': grades,
             'assigments': assigments,
             'months_values': months_values,
-            'terms': terms
+            'terms': terms,
+            'term': term,
+            'grades_with_terms': grades_with_terms
     }
     
 
