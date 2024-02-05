@@ -64,6 +64,8 @@ def create_view(request):
     student_form = None
     teacher_form = None
 
+
+
     if request.method == 'POST':
 
         # tworzenie STUDENTA
@@ -75,9 +77,11 @@ def create_view(request):
                 user.save()
 
                 class_id = student_form.cleaned_data['class_id']
+                parent_id = student_form.cleaned_data['parent_id']
 
                 created_student = Student.objects.get(student__username=user.username)
                 created_student.class_id = class_id
+                created_student.parent_id = parent_id
 
                 created_student.save()
 
@@ -97,6 +101,17 @@ def create_view(request):
 
                 created_teacher = Teacher.objects.get(teacher__username=user.username)
                 created_teacher.subjects.set(subjects)
+
+                return redirect(reverse('create'))
+            else:
+                print("nie valid form")
+
+        # tworzenie RODZICA
+        if request.POST['user_type'] == 'Parent':
+            user_form = CreateUserForm(request.POST)
+            if user_form.is_valid():
+                user = user_form.save(commit=False)
+                user.save()
 
                 return redirect(reverse('create'))
             else:

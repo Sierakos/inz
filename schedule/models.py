@@ -3,7 +3,9 @@ from school.models import Class, School, Classroom, Term
 from teachers.models import Teacher
 from subjects.models import Subject
 
-from datetime import datetime
+from datetime import datetime, timedelta
+
+import uuid
 
 
 class Lesson(models.Model):
@@ -16,13 +18,15 @@ class Lesson(models.Model):
     ]
 
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
-    subject_id = models.ForeignKey(Subject, on_delete=models.CASCADE)
-    teacher_id = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True)
-    room_id = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    subject_id = models.ForeignKey(Subject, on_delete=models.CASCADE) #
+    teacher_id = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True) #
+    room_id = models.ForeignKey(Classroom, on_delete=models.CASCADE) #
     term_id = models.ForeignKey(Term, on_delete=models.CASCADE)
     day = models.CharField(max_length=12, choices=DAY_CHOICES)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField() #
+    end_time = models.TimeField() #
+
+    unique_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
         return f"{self.class_id} {self.subject_id} {self.day} {self.start_time} - {self.end_time} / {self.term_id}"
@@ -33,10 +37,83 @@ class Lesson(models.Model):
         formated_current_date = current_date.strftime("%Y-%m-%d")
 
         print(formated_current_date)
-        return cls.objects.filter(
-                                class_id = id,
-                                term_id__start_date__lte = formated_current_date,
-                                term_id__end_date__gte = formated_current_date,)
+        return cls.objects.filter(class_id = id)
     
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        DAYS_TRANSLATE = {
+            'monday': 'Poniedziałek',
+            'tuesday': 'Wtorek',
+            'wednesday': 'Środa',
+            'thursday': 'Czwartek',
+            'friday': 'Piątek',
+            'saturday': '',
+            'sunday': '',
+        }
+
+        start_date_sem_1 = self.term_id.term_start_sem_1
+        end_date_sem_1 = self.term_id.term_end_sem_1
+
+        
+        current_date = start_date_sem_1
+
+        ### tworzenie zajęć dla pierwszego semestru
+        dates = []
+        
+        if not LessonInstance.objects.filter(lesson_uuid=self.unique_uuid).exists():
+            while current_date <= end_date_sem_1:
+                if self.day == DAYS_TRANSLATE[current_date.strftime('%A').lower()]:
+                    dates.append(current_date)
+                    LessonInstance.objects.create(
+                        lesson=self,
+                        lesson_day=current_date,
+                        lesson_start_time=self.start_time,
+                        lesson_end_time=self.end_time,
+                        term=1,
+                        lesson_uuid=self.unique_uuid
+                        )
+                    
+                current_date += timedelta(days=1)
+
+        print(dates)
+
+        
+
+'''
+Próba oddzielenia lekcji od instancji lekcji.
+
+Zamierzane jest tutaj umieszczać osobne dane dla każdej jednej lekcji
+(np osobno dla matematyki z poniedziałku czwartku i kolejnego poniedziałku).
+Ma to pomóc w oddzieleniu informacji o każdym jednym zajęciu co z kolei skutkuje
+usprawnieniem działania systemu sprawdzania obecności.
+'''
+
+class LessonInstance(models.Model):
+    DAY_CHOICES = [
+        ('Poniedziałek', 'Poniedziałek'),
+        ('Wtorek', 'Wtorek'),
+        ('Środa', 'Środa'),
+        ('Czwartek', 'Czwartek'),
+        ('Piątek', 'Piątek'),
+    ]
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+
+    lesson_day = models.DateField()
+    lesson_start_time = models.TimeField()
+    lesson_end_time = models.TimeField()
+    term = models.IntegerField()
+
+    # przypisanie do danych zajęć
+    lesson_uuid = models.UUIDField(editable=False, unique=False)
+
+    is_started = models.BooleanField(default=False)
+    is_finished = models.BooleanField(default=False)
+
+
+
+    def __str__(self):
+        return f"{self.lesson.class_id} {self.lesson_day} {self.lesson_start_time} - {self.lesson_end_time}"
+
     
 

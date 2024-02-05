@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from .utils import *
+
 
 # Create your models here.
 from students.models import Student
@@ -38,6 +40,84 @@ class Grade(models.Model):
         if type(self.value == str):
             self.value = CONVERTED_VALUES[self.value]
         super().save(*args, **kwargs)
+
+    @staticmethod
+    def get_all_student_subject_grades(student, subject):
+        student_grades = Grade.objects.filter(student=student, subject=subject)
+        grades = []
+        for student_grade in student_grades:
+            conv_value = 0
+            if student_grade.value % 1 == 0.25:
+                conv_value = f"{int(student_grade.value)}+"
+            elif student_grade.value % 1 == 0.75:
+                conv_value = f"{int(student_grade.value) + 1}-"
+            else:
+                conv_value = f"{int(student_grade.value)}"
+            grades.append(conv_value)
+
+        return grades
+
+
+    @staticmethod
+    def get_avarage_grade(student, subject, term):
+        student_grades = Grade.objects.filter(student=student, subject=subject)
+
+        ### dla srednich z semestrów
+        first_term_grade_sum = 0
+        first_term_weight_sum = 0
+        second_term_grade_sum = 0
+        second_term_weight_sum = 0
+
+        first_term_avarage = 0
+        second_term_avarage = 0
+
+        ### dla ogólnej średniej z całego roku
+        grade_sum = 0
+        weight_sum = 0
+
+        avarage = 0
+
+        for grade in student_grades:
+            convert_grade_date = grade.created_at.date()
+
+            grade_sum += (grade.value * grade.assigment.weight)
+            weight_sum += grade.assigment.weight
+
+            if (between(convert_grade_date, term.term_start_sem_1, term.term_end_sem_1)):
+                first_term_grade_sum += (grade.value * grade.assigment.weight)
+                first_term_weight_sum += grade.assigment.weight
+            elif (between(convert_grade_date, term.term_start_sem_2, term.term_end_sem_2)):
+                second_term_grade_sum += (grade.value * grade.assigment.weight)
+                second_term_weight_sum += grade.assigment.weight
+
+        if first_term_weight_sum > 0:
+            first_term_avarage = (first_term_grade_sum / first_term_weight_sum)
+        if second_term_weight_sum > 0:
+            second_term_avarage = (second_term_grade_sum / second_term_weight_sum)
+
+        if weight_sum > 0:
+            avarage = (grade_sum / weight_sum)
+            
+        return [round(first_term_avarage,2), round(second_term_avarage,2), round(avarage,2)]
+    
+    @staticmethod
+    def get_avarage_grade_without_term(student, subject):
+        student_grades = Grade.objects.filter(student=student, subject=subject)
+
+        ### dla ogólnej średniej z całego roku
+        grade_sum = 0
+        weight_sum = 0
+
+        avarage = 0
+
+        for grade in student_grades:
+            grade_sum += (grade.value * grade.assigment.weight)
+            weight_sum += grade.assigment.weight
+
+        if weight_sum > 0:
+            avarage = (grade_sum / weight_sum)
+            
+        return round(avarage,2)
 
     def display_value(self):
         if self.value % 1 == 0.25:

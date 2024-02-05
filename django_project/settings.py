@@ -25,18 +25,33 @@ SECRET_KEY = 'django-insecure-v(0-gp4kqv5jaxuyxyumx4+rnj6qrm=1&&#zkj^2m9y8@jqg^i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
+# E-mail
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'sebastiansieradzki99@gmail.com'
+EMAIL_HOST_PASSWORD = 'mlikeddkjysahfjh'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
 # Application definition
 
 INSTALLED_APPS = [
+    # chat
+    'daphne',
+    'chat',
+    'channels',
+    
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     # schema
     'django_extensions',
 
@@ -58,6 +73,19 @@ INSTALLED_APPS = [
     # grades
     'grades',
 ]
+
+# Daphne
+ASGI_APPLICATION = "django_project.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

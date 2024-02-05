@@ -23,6 +23,15 @@ class CreateAssigment(forms.Form):
                 choices=WEIGHT_CHOICES,
                 widget=forms.Select(attrs={'placeholder': 'Waga oceny', 'class': 'form-control'}))
 
+class ContactForm(forms.Form):
+    
+    title = forms.CharField(
+        max_length=64,
+        widget=forms.TextInput(attrs={'placeholder': 'Tytuł', 'class': 'form-control'}))
+    body = forms.CharField(
+        max_length=512,
+        widget=forms.Textarea(attrs={'placeholder': 'Tytuł', 'class': 'form-control'}))
+
 # class GradeForm(forms.Form):
 #     GRADE_CHOICES = ((1, 1), (1.5, 1.5), (2, 2), (2.5, 2.5), (3, 3), (3.5, 3.5), (4, 4), (4.5, 4.5), (5, 5), (5.5, 5.5), (6, 6))
 

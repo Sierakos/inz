@@ -1,7 +1,6 @@
 from django.db import models
 
 from accounts.models import CustomUser
-from students.models import Student
 
 # signals
 from django.dispatch import receiver
@@ -9,7 +8,6 @@ from django.db.models.signals import post_save
 
 class Parent(models.Model):
     parent = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    student_id = models.ManyToManyField(Student)
 
     def __str__(self):
         return self.parent.last_name + " " + self.parent.first_name

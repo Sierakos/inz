@@ -4,7 +4,7 @@ import json
 
 # Create your views here.
 
-def index(request, id):
+def schedule(request, id):
     lessons = Lesson.get_lessons_with_correct_term(id=id)
     data = {}
     for lesson in lessons:
@@ -14,6 +14,7 @@ def index(request, id):
         }
 
     jsonData = json.dumps(data)
+    print(jsonData)
 
 
     return render(request, 'schedule/index.html', {

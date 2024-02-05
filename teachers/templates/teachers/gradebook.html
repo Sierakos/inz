@@ -51,7 +51,7 @@
     color: red;
   }
 </style>
-<h3 class="m-4">Dziennik</h3>
+<!-- <h3 class="m-4">Dziennik</h3>
   <div class="row">
     <div class="col-12">
       <div class="card border-primary ms-4 me-4 mb-4">
@@ -78,10 +78,7 @@
                                   {% for key, value in months_values.items %}
                                   <th>{{ key }}</th>
                                   {% endfor %}
-                                  <!-- <th>Styczeń</th>
-                                  <th>Luty</th>
-                                  <th>Marzec</th>
-                                  <th>Kwiecień</th> -->
+
                                   <th>Średnia</th>
                               </tr>
                           </thead>
@@ -89,16 +86,14 @@
                             
                             {% for student in students %}
                             <tbody>
-                                <!-- Oceny dla każdego z uczniów -->
+
                                 <tr>
                                     <td>{{ student.id }}</td>
                                     <td>{{ student.student.first_name }}</td>
                                     <td>{{ student.student.last_name }}</td>
                                     {% for key, month_number in months_values.items %}
                                       <td>
-                                        <!--
-                                          Oceny dla stycznia
-                                        -->
+
                                         {% for grade in grades %}
                                           {% if grade.student.id == student.id and subject == grade.subject and month_number == grade.get_created_month %}
                                             <div class="tooltip-grade grade-value-{{grade.assigment.weight}}" data-bs-toggle="modal" data-bs-target="#grade_details_{{grade.id}}">
@@ -107,7 +102,7 @@
                                                 {{ grade.description }}
                                               </span>
                                             </div>
-                                            <!-- MODAL SZCZEGÓŁY OCENY -->
+
                                             <div class="modal" id="grade_details_{{grade.id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
                                               <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
@@ -165,9 +160,7 @@
                                         {% endfor %}
                                       </td>
                                     {% endfor %}
-                                    <!-- <td></td>
-                                    <td></td>
-                                    <td></td> -->
+
                                     <td></td>
                                     <td>
                                       <div class="form-group grade-select">
@@ -223,7 +216,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
   <h3 class="m-4">Dziennik</h3>
   <div class="row">
@@ -247,13 +240,14 @@
                                   <th>Imię</th>
                                   <th>Nazwisko</th>
                                   {% for key, value in terms.items %}
-                                  <th>{{ key }}</th>
+                                    <th>{{ key }}</th>
+                                    <th>Średnia</th>
                                   {% endfor %}
                                   <!-- <th>Styczeń</th>
                                   <th>Luty</th>
                                   <th>Marzec</th>
                                   <th>Kwiecień</th> -->
-                                  <th>Średnia</th>
+                                  
                               </tr>
                           </thead>
                           
@@ -342,11 +336,18 @@
                                           {% endif %}
                                         {% endfor %}
                                       </td>
+                                      <td>
+                                        {% for student_avg, avarage in avarages_with_terms.items %}
+                                          {% if student_avg == student %}
+                                            {% if term_number == 1 %}
+                                              {{ avarage.0 }}
+                                            {% else %}
+                                              {{ avarage.1 }}
+                                            {% endif %}
+                                          {% endif %}
+                                        {% endfor %}
+                                      </td>
                                     {% endfor %}
-                                    <!-- <td></td>
-                                    <td></td>
-                                    <td></td> -->
-                                    <td></td>
                                     <td>
                                       <div class="form-group grade-select">
                                         <select class="form-select" id="id_grade_{{student.id}}" name="grade_{{student.id}}">

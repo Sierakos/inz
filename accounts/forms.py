@@ -8,6 +8,7 @@ from school.models import School, Class
 from students.models import Student
 from teachers.models import Teacher
 from subjects.models import Subject
+from parents.models import Parent
 
 import re
 
@@ -107,6 +108,15 @@ class CreateStudentForm(forms.Form):
         widget=forms.Select(attrs={'placeholder': 'Klasa', 'class': 'form-control'}),
     )
 
+    parent_id = forms.ModelChoiceField(
+        queryset=Parent.objects.all(),
+        label='Wybierz Opiekuna',
+        empty_label='Wybierz opiekuna',
+        required=False,
+        widget=forms.Select(attrs={'placeholder': 'Opiekun', 'class': 'form-control'}),
+
+    )
+
 class CreateTeacherForm(forms.Form):
 
     subjects = forms.ModelMultipleChoiceField(
@@ -116,15 +126,15 @@ class CreateTeacherForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
     )
 
-class CreateParentForm(forms.Form):
+# class CreateParentForm(forms.Form):
 
-    class_id = forms.ModelChoiceField(
-        queryset=Class.objects.all(),
-        label='Wybierz klasę',
-        empty_label='Wybierz klasę',
-        required=False,
-        widget=forms.Select(attrs={'placeholder': 'Klasa', 'class': 'form-control'}),
-    )
+#     class_id = forms.ModelChoiceField(
+#         queryset=Class.objects.all(),
+#         label='Wybierz klasę',
+#         empty_label='Wybierz klasę',
+#         required=False,
+#         widget=forms.Select(attrs={'placeholder': 'Klasa', 'class': 'form-control'}),
+#     )
 
 
 
