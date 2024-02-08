@@ -142,4 +142,23 @@ class Grade(models.Model):
     def __str__(self):
         return f"{self.student} - {self.assigment} - {self.value}"
 
+class StudentReport(models.Model):
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+
+    report = models.TextField(max_length=500, null=False, blank=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.teacher} -> {self.student} na {self.subject}"
+    
+    def get_formated_created_at(self):
+        return self.created_at.strftime('%d %B %Y - %H:%M')
+    
+    def get_formated_updated_at(self):
+        return self.updated_at.strftime('%d %B %Y - %H:%M')
+    
     

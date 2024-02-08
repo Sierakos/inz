@@ -22,11 +22,14 @@ class StudentAttendance(models.Model):
     lesson = models.ForeignKey(LessonInstance, on_delete=models.CASCADE)
 
     is_present = models.BooleanField(default=True)
-    is_absen = models.BooleanField(default=False)
+    is_absent = models.BooleanField(default=False)
     is_late = models.BooleanField(default=False)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return f"{self.student.student.last_name}  {self.student.student.first_name} | {self.lesson.lesson}"
+        return f"{self.student.student.last_name}  {self.student.student.first_name}"
 
 
 @receiver(post_save, sender=CustomUser)

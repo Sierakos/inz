@@ -28,7 +28,19 @@
                                 </tr>
                               </thead>
                               <tbody>
-
+                                {% for report in last_reports %}
+                                <tr>
+                                    <td>
+                                        {{ report.student.id }}
+                                    </td>
+                                    <td>
+                                        {{ report.student.student.first_name }} {{ report.student.student.last_name }}
+                                    </td>
+                                    <td>
+                                        {{ report.report }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
                               </tbody>
                             </table>
                       </p>
@@ -46,13 +58,21 @@
                           <table class="table table-hover" style="min-height:200px;">
                               <thead>
                                 <tr>
-                                  <th scope="col">ID Nauczyciela</th>
+                                  <th scope="col">ID Ucznia</th>
                                   <th scope="col">Nazwisko i imię Ucznia</th>
-                                  <th scope="col">ilość nieobecności z ostatnich 7 dni</th>
                                 </tr>
                               </thead>
                               <tbody>
-
+                                {% for absent in last_absents %}
+                                <tr>
+                                    <td>
+                                        {{ absent.student.id }}
+                                    </td>
+                                    <td>
+                                        {{ absent.student.student.first_name }} {{ absent.student.student.last_name }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
 
                               </tbody>
                           </table>
@@ -81,9 +101,9 @@
                                 <td>{{student.class_id.class_name}} {{student.class_id.class_letter}}</td>
                                 <td>
                                     <a href="{% url 'student_grades' id=student.id %}"><i class="fa-solid fa-book"></i></a> 
-                                    <i class="fa-solid fa-clipboard-list"></i> 
-                                    <i class="fa-solid fa-message"></i> 
-                                    <i class="fa-solid fa-file-invoice"></i> 
+                                    <a href="{% url 'student_attendance' id=student.id %}"><i class="fa-solid fa-clipboard-list"></i></a> 
+                                    <a href="{% url 'student_report' id=student.id %}"><i class="fa-solid fa-message"></i></a> 
+                                    <a href="{% url 'generate_student_raport' id=student.id %}"><i class="fa-solid fa-file-invoice"></i></a> 
                                     <i class="fa-solid fa-chart-line"></i>
                                 </td>
                             </tr>

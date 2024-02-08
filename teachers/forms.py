@@ -1,6 +1,6 @@
 from django import forms
 
-from grades.models import Assigment, Grade
+from grades.models import Assigment, Grade, StudentReport
 from schedule.models import Lesson
 
 class CreateAssigment(forms.Form):
@@ -31,6 +31,28 @@ class ContactForm(forms.Form):
     body = forms.CharField(
         max_length=512,
         widget=forms.Textarea(attrs={'placeholder': 'Tytuł', 'class': 'form-control'}))
+    
+class StudentReportForm(forms.ModelForm):
+    class Meta:
+        model = StudentReport
+        fields = ['student', 'report']
+        widgets = {
+            'student': forms.Select(attrs={'id': 'student-input', 'placeholder': 'Uczeń', 'class': 'form-control'}),
+            'report': forms.Textarea(attrs={'id': 'report-input', 'placeholder': 'Raport', 'class': 'form-control'}),
+        }
+        labels = {
+            'student': 'Uczeń',
+            'report': 'Raport'
+        }
+
+    def __init__(self, *args, **kwargs):
+        students = kwargs.pop('students', None)
+        super(StudentReportForm, self).__init__(*args, **kwargs)
+        if students:
+            self.fields['student'].queryset = students
+
+        for field_name, field in self.fields.items():
+            field.required = False
 
 # class GradeForm(forms.Form):
 #     GRADE_CHOICES = ((1, 1), (1.5, 1.5), (2, 2), (2.5, 2.5), (3, 3), (3.5, 3.5), (4, 4), (4.5, 4.5), (5, 5), (5.5, 5.5), (6, 6))

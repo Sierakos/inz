@@ -3,7 +3,7 @@ from school.models import Class, School, Classroom, Term
 from teachers.models import Teacher
 from subjects.models import Subject
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import uuid
 
@@ -25,6 +25,8 @@ class Lesson(models.Model):
     day = models.CharField(max_length=12, choices=DAY_CHOICES)
     start_time = models.TimeField() #
     end_time = models.TimeField() #
+    sem_1 = models.BooleanField(blank=True, null=True)
+    sem_2 = models.BooleanField(blank=True, null=True)
 
     unique_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
@@ -42,18 +44,11 @@ class Lesson(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        DAYS_TRANSLATE = {
-            'monday': 'Poniedziałek',
-            'tuesday': 'Wtorek',
-            'wednesday': 'Środa',
-            'thursday': 'Czwartek',
-            'friday': 'Piątek',
-            'saturday': '',
-            'sunday': '',
-        }
-
         start_date_sem_1 = self.term_id.term_start_sem_1
         end_date_sem_1 = self.term_id.term_end_sem_1
+
+        start_date_sem_2 = self.term_id.term_start_sem_2
+        end_date_sem_2 = self.term_id.term_end_sem_2
 
         
         current_date = start_date_sem_1
@@ -61,9 +56,9 @@ class Lesson(models.Model):
         ### tworzenie zajęć dla pierwszego semestru
         dates = []
         
-        if not LessonInstance.objects.filter(lesson_uuid=self.unique_uuid).exists():
+        if not LessonInstance.objects.filter(lesson_uuid=self.unique_uuid).exists() and self.sem_1: 
             while current_date <= end_date_sem_1:
-                if self.day == DAYS_TRANSLATE[current_date.strftime('%A').lower()]:
+                if self.day.lower() == current_date.strftime('%A'):
                     dates.append(current_date)
                     LessonInstance.objects.create(
                         lesson=self,
@@ -71,6 +66,23 @@ class Lesson(models.Model):
                         lesson_start_time=self.start_time,
                         lesson_end_time=self.end_time,
                         term=1,
+                        lesson_uuid=self.unique_uuid
+                        )
+                    
+                current_date += timedelta(days=1)
+
+        current_date = start_date_sem_2
+
+        if not LessonInstance.objects.filter(lesson_uuid=self.unique_uuid).exists() and self.sem_2: 
+            while current_date <= end_date_sem_2:
+                if self.day.lower() == current_date.strftime('%A'):
+                    dates.append(current_date)
+                    LessonInstance.objects.create(
+                        lesson=self,
+                        lesson_day=current_date,
+                        lesson_start_time=self.start_time,
+                        lesson_end_time=self.end_time,
+                        term=2,
                         lesson_uuid=self.unique_uuid
                         )
                     
@@ -110,10 +122,17 @@ class LessonInstance(models.Model):
     is_started = models.BooleanField(default=False)
     is_finished = models.BooleanField(default=False)
 
-
-
     def __str__(self):
         return f"{self.lesson.class_id} {self.lesson_day} {self.lesson_start_time} - {self.lesson_end_time}"
+    
+    def get_formated_day(self):
+        return self.lesson_day.strftime('%d %B %Y')
+    
+    def get_formated_start_time(self):
+        return self.lesson_start_time.strftime('%H:%M')
+    
+    def get_formated_end_time(self):
+        return self.lesson_end_time.strftime('%H:%M')
 
     
 

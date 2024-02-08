@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import Assigment, Grade
+from .models import Assigment, Grade, StudentReport
 
 # Register your models here.
 
 admin.site.register(Assigment)
 admin.site.register(Grade)
+admin.site.register(StudentReport)

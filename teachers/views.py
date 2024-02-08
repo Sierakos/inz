@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
+from django.http import HttpResponse
 
 from django.core.mail import send_mail
 from django.core.mail import EmailMessage
@@ -10,18 +11,21 @@ from django.core.mail import EmailMessage
 from schedule.models import Lesson, LessonInstance
 from school.models import Class, Term
 from students.models import Student, StudentAttendance
-from grades.models import Assigment, Grade
+from grades.models import Assigment, Grade, StudentReport
 from subjects.models import Subject
 from parents.models import Parent
 from .models import Teacher
 
-from .forms import CreateAssigment, ContactForm
+from .forms import CreateAssigment, ContactForm, StudentReportForm
 
 from datetime import datetime
 
 from .utils import *
 
 import json
+
+from reportlab.pdfgen import canvas
+
 
 @login_required
 def teacher_subjects_view(request):
@@ -134,13 +138,15 @@ def gradebook_view(request, classroom, letter, subject_name):
         else:
             pass
 
-    ### średnie ważone dla każdego z ucznia
-    ### w danym semestrze
+    # średnie ważone dla każdego z ucznia
+    # w danym semestrze
     avarages_with_terms = {}
     for student in students:
         avarage = Grade.get_avarage_grade(student, subject, term)
         avarages_with_terms[student] = avarage
-    print(avarages_with_terms)
+
+    # formularz uwag
+    report_form = StudentReportForm(request.POST, students=students)
 
     context = {
             'students': students,
@@ -151,7 +157,8 @@ def gradebook_view(request, classroom, letter, subject_name):
             'terms': terms,
             'term': term,
             'grades_with_terms': grades_with_terms,
-            'avarages_with_terms': avarages_with_terms
+            'avarages_with_terms': avarages_with_terms,
+            'report_form': report_form
     }
 
     if request.method == "POST":
@@ -187,7 +194,13 @@ def gradebook_view(request, classroom, letter, subject_name):
 
                     new_grade.save()
 
-
+        if 'student' in request.POST and 'report' in request.POST:
+            report_form = StudentReportForm(request.POST, students=students)
+            if report_form.is_valid():
+                student_report = report_form.save(commit=False)
+                student_report.teacher = request.user.teacher
+                student_report.subject = subject
+                student_report.save()
 
         return redirect(reverse('gradebook', args=(classroom, letter, subject_name)))
 
@@ -254,7 +267,7 @@ def lessons_view(request, classroom, letter, subject_name):
 
     actual_lesson = Lesson.objects.filter(class_id = classroom_id, subject_id=subject)
 
-    lessons = LessonInstance.objects.filter(lesson__in=actual_lesson.all()) # <TODO: czemu to działa> Porównujemy do QuerySet a nie do pojedyńczej wartości
+    lessons = LessonInstance.objects.filter(lesson__in=actual_lesson.all())
     
     context = {
         'lessons': lessons
@@ -284,6 +297,7 @@ def check_attendance_view(request, id):
     for student in students:
         attendance_key = 'attendance_' + str(student.id)
         if attendance_key in request.POST:
+            print("aaa")
             attendance_value = request.POST[attendance_key]
             cleaned_attendances[student.id] = attendance_value
 
@@ -293,7 +307,7 @@ def check_attendance_view(request, id):
                     lesson=actual_lesson_instance
                 ).update(
                     is_present = True,
-                    is_absen = False,
+                    is_absent = False,
                     is_late = False
                 )
             elif attendance_value == "NB":
@@ -302,7 +316,7 @@ def check_attendance_view(request, id):
                     lesson=actual_lesson_instance
                 ).update(
                     is_present = False,
-                    is_absen = True,
+                    is_absent = True,
                     is_late = False
                 )
             elif attendance_value == "SP":
@@ -311,7 +325,7 @@ def check_attendance_view(request, id):
                     lesson=actual_lesson_instance
                 ).update(
                     is_present = False,
-                    is_absen = False,
+                    is_absent = False,
                     is_late = True
                 )
 
@@ -331,15 +345,50 @@ def start_lesson(request, id):
     subject_name = related_lesson.subject_id.subject_name
     class_name = related_lesson.class_id.class_name
     class_letter = related_lesson.class_id.class_letter
+    
+    if actual_lesson_instance.is_started == False:
+        # Only one of Lesson instance can be started at once
+        lessons_instances = LessonInstance.objects.filter(lesson=related_lesson)
+        for lesson_instance in lessons_instances:
+            if lesson_instance.is_started:
+                return redirect(reverse('lessons_view', args=(class_name, class_letter, subject_name)))
 
-    actual_lesson_instance.is_started = True
+        actual_lesson_instance.is_started = True
+        actual_lesson_instance.save()
+
+        for student in students:
+            if not StudentAttendance.objects.filter(student=student, lesson=actual_lesson_instance).exists():
+                StudentAttendance.objects.create(student=student, lesson=actual_lesson_instance)
+
+    # For undo start purpose
+    elif actual_lesson_instance.is_started == True:
+
+        actual_lesson_instance.is_started = False
+        actual_lesson_instance.save()
+
+        for student in students:
+            if StudentAttendance.objects.filter(student=student, lesson=actual_lesson_instance).exists():
+                StudentAttendance.objects.filter(student=student, lesson=actual_lesson_instance).delete()
+
+
+    return redirect(reverse('lessons_view', args=(class_name, class_letter, subject_name)))
+
+@login_required
+def end_lesson(request, id):
+    actual_lesson_instance = LessonInstance.objects.get(id=id)
+
+    related_lesson = actual_lesson_instance.lesson
+
+    students = Student.objects.filter(class_id=related_lesson.class_id)
+
+    # for redirect
+    subject_name = related_lesson.subject_id.subject_name
+    class_name = related_lesson.class_id.class_name
+    class_letter = related_lesson.class_id.class_letter
+
+    actual_lesson_instance.is_started = False
+    actual_lesson_instance.is_finished = True
     actual_lesson_instance.save()
-
-    for student in students:
-        if not StudentAttendance.objects.filter(student=student, lesson=actual_lesson_instance).exists():
-            StudentAttendance.objects.create(student=student, lesson=actual_lesson_instance)
-        else:
-            print("Tu będzie chyba uwzględniona zmiana obecności? być może")
 
     return redirect(reverse('lessons_view', args=(class_name, class_letter, subject_name)))
 
@@ -350,13 +399,31 @@ def my_class_view(request):
     teacher_class = Class.objects.get(counselor=actual_teacher)
 
     students = Student.objects.filter(class_id=teacher_class)
+
+    last_reports = StudentReport.objects.filter(student__in=students.all()).order_by('-created_at')[:5]
+    last_absents = StudentAttendance.objects.filter(student__in=students.all(), is_absent=True).order_by('-created_at')[:5]
     
     context = {
         'class': teacher_class,
         'students': students,
+        'last_reports': last_reports,
+        'last_absents': last_absents
     }
 
     return render(request, 'teachers/my_class_view.html', context=context)
+
+@login_required
+def generate_student_raport(request, id):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="student_report.pdf"'
+
+    p = canvas.Canvas(response)
+    p.drawString(100, 800, "Raport Ucznia")  # Tytuł raportu
+    # Tutaj dodaj więcej zawartości raportu w odpowiednich miejscach na stronie
+    p.showPage()
+    p.save()
+
+    return response
 
 @login_required
 def messages_view(request):

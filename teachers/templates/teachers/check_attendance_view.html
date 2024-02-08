@@ -33,22 +33,22 @@
                                                     <td>{{student.student.student.last_name}}</td>
                                                     <td>
                                                         <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="attendance_{{student.id}}" id="inlineRadio1_{{student.id}}" value="OB" 
+                                                            <input class="form-check-input" type="radio" name="attendance_{{student.student.id}}" id="inlineRadio1_{{student.student.id}}" value="OB" 
                                                             {% if student.is_present %}checked{% endif %}
                                                             >
-                                                            <label class="form-check-label" for="inlineRadio1_{{student.id}}">OB</label>
+                                                            <label class="form-check-label" for="inlineRadio1_{{student.student.id}}">OB</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="attendance_{{student.id}}" id="inlineRadio2_{{student.id}}" value="NB"
-                                                            {% if student.is_absen %}checked{% endif %}
+                                                            <input class="form-check-input" type="radio" name="attendance_{{student.student.id}}" id="inlineRadio2_{{student.student.id}}" value="NB"
+                                                            {% if student.is_absent %}checked{% endif %}
                                                             >
-                                                            <label class="form-check-label" for="inlineRadio2_{{student.id}}">NB</label>
+                                                            <label class="form-check-label" for="inlineRadio2_{{student.student.id}}">NB</label>
                                                         </div>
                                                         <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="attendance_{{student.id}}" id="inlineRadio3_{{student.id}}" value="SP"
+                                                            <input class="form-check-input" type="radio" name="attendance_{{student.student.id}}" id="inlineRadio3_{{student.student.id}}" value="SP"
                                                             {% if student.is_late %}checked{% endif %}
                                                             >
-                                                            <label class="form-check-label" for="inlineRadio3_{{student.id}}">SP</label>
+                                                            <label class="form-check-label" for="inlineRadio3_{{student.student.id}}">SP</label>
                                                         </div>
                                                     </td>
                                                 </tr>

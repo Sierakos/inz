@@ -31,13 +31,32 @@
                                         <td>{{lesson.id}}</td>
                                         <td>{{lesson.lesson.class_id}}</td>
                                         <td>{{lesson.lesson.subject_id}}</td>
-                                        <td>{{lesson.lesson_day}}</td>
-                                        <td>{{lesson.lesson_start_time}} - {{lesson.lesson_end_time}}</td>
+                                        <td>{{lesson.get_formated_day}}</td>
+                                        <td>{{lesson.get_formated_start_time}} - {{lesson.get_formated_end_time}}</td>
                                         <td>
                                             <i class="fa-solid fa-plus"></i> 
-                                            <a href="{% url 'start_lesson' id=lesson.id %}"><i class="fa-solid fa-play"></i></a> 
-                                            <i class="fa-solid fa-hourglass-end"></i> 
-                                            <a href="{% url 'check_attendance' id=lesson.id %}"><i class="fa-solid fa-clipboard-list"></i></a>
+
+                                            <!-- Start lesson -->
+                                            {% if not lesson.is_finished %}
+                                                <a href="{% url 'start_lesson' id=lesson.id %}"><i class="fa-solid fa-play"></i></a>
+                                            {% else %} 
+                                                <i class="fa-solid fa-play"></i>
+                                            {% endif %}
+
+                                            <!-- End lesson -->
+                                            {% if lesson.is_started %}
+                                                <a href="{% url 'end_lesson' id=lesson.id %}"><i class="fa-solid fa-hourglass-end"></i></a> 
+                                            {% else %}
+                                                <i class="fa-solid fa-hourglass-end"></i>
+                                            {% endif %}
+
+                                            <!-- Check attendance -->
+                                            {% if lesson.is_started or lesson.is_finished %}
+                                                <a href="{% url 'check_attendance' id=lesson.id %}"><i class="fa-solid fa-clipboard-list"></i></a>
+                                            {% else %}
+                                                <i class="fa-solid fa-clipboard-list"></i>
+                                            {% endif %}
+
                                         </td>
                                         <td>
                                             {% if not lesson.is_started and not lesson.is_finished %}
