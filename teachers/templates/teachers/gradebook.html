@@ -241,7 +241,12 @@
                                   <th>Nazwisko</th>
                                   {% for key, value in terms.items %}
                                     <th>{{ key }}</th>
-                                    <th>Średnia</th>
+                                    <th>Proponowana</th>
+                                    {% if value == 1 %}
+                                      <th>Sródroczna</th>
+                                    {% else %}
+                                      <th>Końcowa</th>
+                                    {% endif %}
                                   {% endfor %}
                                   <!-- <th>Styczeń</th>
                                   <th>Luty</th>
@@ -347,6 +352,17 @@
                                           {% endif %}
                                         {% endfor %}
                                       </td>
+                                      <td>
+                                        {% for student_avg, avarage in avarages_with_terms.items %}
+                                          {% if student_avg == student %}
+                                            {% if term_number == 1 %}
+                                              {{ avarage.3 }}
+                                            {% else %}
+                                              {{ avarage.4 }}
+                                            {% endif %}
+                                          {% endif %}
+                                        {% endfor %}
+                                      </td>
                                     {% endfor %}
                                     <td>
                                       <div class="form-group grade-select">
@@ -392,6 +408,10 @@
                       <button type="submit" class="btn btn-outline-primary">Dodaj oceny</button>
 
                       <br><br>
+                      
+                    </form>
+                    <form method='POST' action="{% url 'add_report' class_name=class_name class_letter=class_letter subject=subject.subject_name %}">
+                      {% csrf_token %}
                       {{ report_form }}
                       <button type="submit" class="btn btn-outline-primary">Dodaj uwagę</button>
                     </form>

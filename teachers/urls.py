@@ -2,8 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('', views.home_redirect, name='home_redirect'),
     path('teacher-subjects/', views.teacher_subjects_view, name='teacher_subjects'),
     path('gradebook/<int:classroom>/<str:letter>/<str:subject_name>', views.gradebook_view, name='gradebook'),
+    path('gradebook/add_report/<int:class_name>/<str:class_letter>/<str:subject>', views.add_report, name='add_report'),
     path('create-assigment/', views.gradebook_view, name='create_assigment'),
     path('contact-parent/<int:student>/', views.contact_parent_view, name='contact_parent'),
     path('messages/', views.messages_view, name='messages_view'),

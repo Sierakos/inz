@@ -16,9 +16,6 @@
                     <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#student_list{{lesson.class_id}}">
                       lista uczniów
                     </button>
-                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#create_assigment{{lesson.id}}">
-                      dodaj test
-                    </button>
                     <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'gradebook' classroom=lesson.class_id__class_name letter=lesson.class_id__class_letter subject_name=lesson.subject_id__subject_name %}'">
                       otwórz dziennik
                     </button>
@@ -50,9 +47,6 @@
                         {% if student.class_id.id == lesson.class_id %}
                         <p>
                           {{ student }}
-                          <button type="button" class="btn btn-outline-info btn-sm">
-                            Raport
-                          </button>
                           <button type="button" class="btn btn-outline-warning btn-sm" onclick="window.location.href='{% url "contact_parent" student=student.id %}'">
                             Wyślij e-mail do opiekuna
                           </button>
@@ -72,32 +66,6 @@
                   </div>
                 </div>
 
-                <!-- MODAL TWORZENIE TESTU LUB INNEGO ZADANIA DOMOWEGO -->
-                <div class="modal" id="create_assigment{{lesson.id}}" tabindex="-1" aria-labelledby="myModalLabel2" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">
-                          Tworzenie testu
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true"></span>
-                        </button>
-                      </div>
-                        <form action="#" method="POST">
-                          <div class="modal-body">
-                            {% csrf_token %}
-                            {{ form.as_p }}
-                          </div>
-                          <div class="modal-footer">
-                            <input type="submit" class="btn btn-primary" value="Utwórz">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wróć</button>
-                          </div>
-                        </form>     
-                      
-                    </div>
-                  </div>
-                </div>
                 <!-- MODAL WYKRES -->
                 <div class="modal" id="student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
                   <div class="modal-dialog" role="document">

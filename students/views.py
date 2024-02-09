@@ -123,6 +123,8 @@ def student_attendance_view(request, id):
         all_present += present_count_all
         all_absent += absent_count_all
         all_late += late_count_all
+
+        
         
 
 
@@ -135,7 +137,8 @@ def student_attendance_view(request, id):
         'student_attendances': student_attendances,
         'student': student,
         'attendance_values': attendance_values,
-        'jsonData': jsonData
+        'jsonData': jsonData,
+        'overall': overall
     }
 
     return render(request, 'students/student_attendance.html', context=context)

@@ -17,6 +17,9 @@ class Assigment(models.Model):
     name = models.CharField(max_length=200)
     weight = models.IntegerField(default=1)
 
+    midterm_grade = models.BooleanField(default=False)
+    final_grade = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.name}"
 
@@ -43,7 +46,7 @@ class Grade(models.Model):
 
     @staticmethod
     def get_all_student_subject_grades(student, subject):
-        student_grades = Grade.objects.filter(student=student, subject=subject)
+        student_grades = Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=False, assigment__final_grade=False)
         grades = []
         for student_grade in student_grades:
             conv_value = 0
@@ -60,7 +63,17 @@ class Grade(models.Model):
 
     @staticmethod
     def get_avarage_grade(student, subject, term):
-        student_grades = Grade.objects.filter(student=student, subject=subject)
+        student_grades = Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=False, assigment__final_grade=False)
+
+        if Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=True).exists():
+            midterm_grade = Grade.objects.get(student=student, subject=subject, assigment__midterm_grade=True).value
+        else:
+            midterm_grade = 0
+
+        if Grade.objects.filter(student=student, subject=subject, assigment__final_grade=True).exists():
+            final_grade = Grade.objects.get(student=student, subject=subject, assigment__final_grade=True).value
+        else:
+            final_grade = 0
 
         ### dla srednich z semestrów
         first_term_grade_sum = 0
@@ -98,11 +111,11 @@ class Grade(models.Model):
         if weight_sum > 0:
             avarage = (grade_sum / weight_sum)
             
-        return [round(first_term_avarage,2), round(second_term_avarage,2), round(avarage,2)]
+        return [round(first_term_avarage,2), round(second_term_avarage,2), round(avarage,2), midterm_grade, final_grade]
     
     @staticmethod
     def get_avarage_grade_without_term(student, subject):
-        student_grades = Grade.objects.filter(student=student, subject=subject)
+        student_grades = Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=False, assigment__final_grade=False)
 
         ### dla ogólnej średniej z całego roku
         grade_sum = 0

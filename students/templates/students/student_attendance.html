@@ -90,6 +90,17 @@
                               </td>
                             <tr>
                             {% endfor %}
+                            <tr>
+                              <td>
+                                Łącznie
+                              </td>
+                              {% for data in overall %}
+                                <td>
+                                  obecności: {{data.0}}, nieobecności: {{data.1}}, spóźnienia: {{data.2}}
+                                </td>
+                              {% endfor %}
+                            </tr>
+
                           </tbody>
                             
                           

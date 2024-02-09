@@ -11,7 +11,13 @@
 <body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="{% url 'home' %}">
+          <a class="navbar-brand"
+          {% if request.user.user_type == "Teacher" %}
+            href="{% url 'teacher_subjects' %}"
+          {% else %}
+            href="{% url 'home' %}"
+          {% endif %}
+          >
             <i class="fa-solid fa-graduation-cap fa-lg"></i> Student Managment System
           </a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,7 +38,7 @@
                   </a>
                 </li>
 
-                {% if request.user.user_type == "Teacher" %}
+                {% if request.user.teacher %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'teacher_subjects' %}">
                     <i class="fa-solid fa-plus fa-lg"></i> Moje zajęcia
@@ -48,17 +54,17 @@
                     <i class="fa-solid fa-plus fa-lg"></i> Moja klasa
                   </a>
                 </li>
-                <li class="nav-item">
+                {% comment %} <li class="nav-item">
                   <a class="nav-link" href="{% url 'teacher_subjects' %}">
                     <i class="fa-solid fa-plus fa-lg"></i> statystyki
                   </a>
-                </li>
+                </li> {% endcomment %}
                 {% endif %}
 
-                {% if request.user.user_type == "Parent" %}
+                {% if request.user.parent %}
                 <li class="nav-item">
                   <a class="nav-link" href="#">
-                    <i class="fa-solid fa-plus fa-lg"></i> Podopieczni
+                    <i class="fa-solid fa-plus fa-lg"></i> Dzieci
                   </a>
                 </li>
                 
@@ -70,7 +76,7 @@
                 </li>
                 {% endif %}
 
-                {% if request.user.user_type == "Student" and request.user.student.class_id.id %}
+                {% if request.user.student and request.user.student.class_id.id %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'schedule' id=request.user.student.class_id.id %}">
                     <i class="fa-solid fa-plus fa-lg"></i> Plan zajęć
@@ -82,14 +88,38 @@
                   </a>
                 </li>
                 {% endif %}
-                {% if request.user.user_type == "Admin" %}
+                
+                {% if request.user.staff %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'manage_school' %}">
+                    <i class="fa-solid fa-plus fa-lg"></i> Zarządzaj szkołą
+                  </a>
+                </li>
+                {% endif %}
+
+                {% if request.user.admin %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create' %}">
                     <i class="fa-solid fa-plus fa-lg"></i> Dodaj kogoś
                   </a>
                 </li>
                 {% endif %}
-                jesteś zalogowany jako: {{ request.user.first_name }} {{ request.user.last_name }} : {{ request.user.user_type }}
+                jesteś zalogowany jako: {{ request.user.first_name }} {{ request.user.last_name }} : 
+                {% if request.user.admin %}
+                  Admin
+                {% endif %}
+                {% if request.user.staff %}
+                  Dyrektor
+                {% endif %}
+                {% if request.user.teacher %}
+                  Nauczyciel
+                {% endif %}
+                {% if request.user.parent %}
+                  Rodzic
+                {% endif %}
+                {% if request.user.student %}
+                  Uczeń
+                {% endif %}
               {% else %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'login' %}">

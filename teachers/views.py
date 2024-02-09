@@ -28,6 +28,10 @@ from reportlab.pdfgen import canvas
 
 
 @login_required
+def home_redirect(request):
+    return redirect(reverse('teacher_subjects'))
+
+@login_required
 def teacher_subjects_view(request):
     user = request.user
     teacher = user.teacher
@@ -93,7 +97,7 @@ def gradebook_view(request, classroom, letter, subject_name):
     # weź wszystkie kategorie oceny
     assigments = Assigment.objects.all()
     
-    grades = Grade.objects.filter(student__in=students, teacher=request.user.teacher, subject=subject)
+    grades = Grade.objects.filter(student__in=students, teacher=request.user.teacher, subject=subject, assigment__midterm_grade=False, assigment__final_grade=False)
 
     actual_lesson = Lesson.objects.filter(class_id = classroom_id, subject_id=subject).values(
         'class_id',
@@ -142,8 +146,11 @@ def gradebook_view(request, classroom, letter, subject_name):
     # w danym semestrze
     avarages_with_terms = {}
     for student in students:
+
         avarage = Grade.get_avarage_grade(student, subject, term)
         avarages_with_terms[student] = avarage
+
+    print(avarages_with_terms)
 
     # formularz uwag
     report_form = StudentReportForm(request.POST, students=students)
@@ -158,12 +165,16 @@ def gradebook_view(request, classroom, letter, subject_name):
             'term': term,
             'grades_with_terms': grades_with_terms,
             'avarages_with_terms': avarages_with_terms,
-            'report_form': report_form
+            'report_form': report_form,
+            'class_name': classroom,
+            'class_letter': letter,
+            'subject': subject
     }
 
     if request.method == "POST":
         # print(request.POST)
         cleaned_grades = {}
+        print(request.POST)
 
         ### ZMIANA OCENY
         for grade in grades:
@@ -183,28 +194,76 @@ def gradebook_view(request, classroom, letter, subject_name):
                     grade_value = request.POST[grade_key]
                     cleaned_grades[student.id] = grade_value
 
-                    new_grade = Grade(
-                        teacher = request.user.teacher,
-                        student = student,
-                        subject = subject,
-                        assigment = assigment_object,
-                        value = grade_value,
-                        description = grade_description
-                    )
+                    # sprawdź czy nie ma już oceny końcowej lub średniej dla danego ucznia w przypadku ich wpisywania
+                    if assigment_object.midterm_grade == True:
+                        is_midterm_grade = Grade.objects.filter(
+                            teacher = request.user.teacher,
+                            student = student,
+                            subject = subject,
+                            assigment = assigment_object,
+                            assigment__midterm_grade=True).exists()
+                        if is_midterm_grade:
+                            midterm_grade = Grade.objects.filter(
+                                teacher = request.user.teacher,
+                                student = student,
+                                subject = subject,
+                                assigment = assigment_object,
+                                assigment__midterm_grade=True)
+                            
+                            midterm_grade.update(value=grade_value)
 
-                    new_grade.save()
+                    elif assigment_object.final_grade == True:
+                        is_final_grade = Grade.objects.filter(
+                            teacher = request.user.teacher,
+                            student = student,
+                            subject = subject,
+                            assigment = assigment_object,
+                            assigment__final_grade=True
+                                                ).exists()
+                        if is_final_grade:
+                            final_grade = Grade.objects.filter(
+                                teacher = request.user.teacher,
+                                student = student,
+                                subject = subject,
+                                assigment = assigment_object,
+                                assigment__final_grade=True)
+                            
+                            final_grade.update(value=grade_value)
+                        
+                    else:
+                        new_grade = Grade(
+                            teacher = request.user.teacher,
+                            student = student,
+                            subject = subject,
+                            assigment = assigment_object,
+                            value = grade_value,
+                            description = grade_description
+                        )
 
-        if 'student' in request.POST and 'report' in request.POST:
-            report_form = StudentReportForm(request.POST, students=students)
-            if report_form.is_valid():
-                student_report = report_form.save(commit=False)
-                student_report.teacher = request.user.teacher
-                student_report.subject = subject
-                student_report.save()
+                        new_grade.save()
 
         return redirect(reverse('gradebook', args=(classroom, letter, subject_name)))
 
     return render(request, 'teachers/gradebook.html', context=context)
+
+@login_required
+def add_report(request, class_name, class_letter, subject):
+    classroom_id = Class.objects.get(class_name=class_name, class_letter=class_letter)
+
+    students = Student.objects.filter(class_id = classroom_id)
+
+    subject = Subject.objects.get(subject_name=subject)
+
+    if request.method == 'POST':
+        report_form = StudentReportForm(request.POST, students=students)
+        if report_form.is_valid():
+            student_report = report_form.save(commit=False)
+            student_report.teacher = request.user.teacher
+            student_report.subject = subject
+            student_report.save()
+
+        return redirect(reverse('gradebook', args=(class_name, class_letter, subject)))
+
 
 @login_required
 def contact_parent_view(request, student):

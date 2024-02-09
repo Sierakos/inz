@@ -116,6 +116,18 @@ def create_view(request):
                 return redirect(reverse('create'))
             else:
                 print("nie valid form")
+
+        # tworzenie DYREKTORA
+        if request.POST['user_type'] == 'Staff':
+            user_form = CreateUserForm(request.POST)
+            if user_form.is_valid():
+                user = user_form.save(commit=False)
+                user.save()
+
+                return redirect(reverse('create'))
+            else:
+                print("nie valid form")
+
     else:
         user_form = CreateUserForm()
         student_form = CreateStudentForm()
