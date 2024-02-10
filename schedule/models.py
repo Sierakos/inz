@@ -5,6 +5,8 @@ from subjects.models import Subject
 
 from datetime import datetime, timedelta, timezone
 
+from django.core.exceptions import ValidationError
+
 import uuid
 
 
@@ -17,16 +19,28 @@ class Lesson(models.Model):
         ('Piątek', 'Piątek'),
     ]
 
+    LESSON_HOURS_CHOICES = [
+        ('8:00-8:45', '8:00-8:45'),
+        ('8:50-9:35', '8:50-9:35'),
+        ('9:45-10:30', '9:45-10:30'),
+        ('10:40-11:25', '10:40-11:25'),
+        ('12:40-13:25', '12:40-13:25'),
+        ('13:35-14:10', '13:35-14:10'),
+        ('14:15-15:00', '14:15-15:00'),
+        ('15:05-15:50', '15:05-15:50'),
+    ]
+
     class_id = models.ForeignKey(Class, on_delete=models.CASCADE)
     subject_id = models.ForeignKey(Subject, on_delete=models.CASCADE) #
     teacher_id = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True) #
     room_id = models.ForeignKey(Classroom, on_delete=models.CASCADE) #
     term_id = models.ForeignKey(Term, on_delete=models.CASCADE)
     day = models.CharField(max_length=12, choices=DAY_CHOICES)
-    start_time = models.TimeField() #
-    end_time = models.TimeField() #
-    sem_1 = models.BooleanField(blank=True, null=True)
-    sem_2 = models.BooleanField(blank=True, null=True)
+    lesson_hours = models.CharField(max_length=12, choices=LESSON_HOURS_CHOICES)
+    start_time = models.TimeField(null=True, blank=True) #
+    end_time = models.TimeField(null=True, blank=True) #
+    sem_1 = models.BooleanField(default=False)
+    sem_2 = models.BooleanField(default=False)
 
     unique_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
@@ -42,6 +56,11 @@ class Lesson(models.Model):
         return cls.objects.filter(class_id = id)
     
     def save(self, *args, **kwargs):
+
+        # Przekonwertuj lesson_hours na start_time i end_time
+        start_time_str, end_time_str = self.lesson_hours.split('-')
+        self.start_time = datetime.strptime(start_time_str, '%H:%M').time()
+        self.end_time = datetime.strptime(end_time_str, '%H:%M').time()
         super().save(*args, **kwargs)
 
         start_date_sem_1 = self.term_id.term_start_sem_1
@@ -53,7 +72,7 @@ class Lesson(models.Model):
         
         current_date = start_date_sem_1
 
-        ### tworzenie zajęć dla pierwszego semestru
+        # tworzenie zajęć dla pierwszego semestru
         dates = []
         
         if not LessonInstance.objects.filter(lesson_uuid=self.unique_uuid).exists() and self.sem_1: 
@@ -67,7 +86,7 @@ class Lesson(models.Model):
                         lesson_end_time=self.end_time,
                         term=1,
                         lesson_uuid=self.unique_uuid
-                        )
+                    )
                     
                 current_date += timedelta(days=1)
 
@@ -84,13 +103,48 @@ class Lesson(models.Model):
                         lesson_end_time=self.end_time,
                         term=2,
                         lesson_uuid=self.unique_uuid
-                        )
+                    )
                     
                 current_date += timedelta(days=1)
 
         print(dates)
 
-        
+    def clean(self):
+        # Przekonwertuj lesson_hours na start_time i end_time
+        start_time_str, end_time_str = self.lesson_hours.split('-')
+        start_time = datetime.strptime(start_time_str, '%H:%M').time()
+        end_time = datetime.strptime(end_time_str, '%H:%M').time()
+
+        if self.teacher_id and self.day and start_time:
+            conflicting_lessons = Lesson.objects.filter(
+                teacher_id=self.teacher_id,
+                day=self.day,
+                start_time=start_time
+            ).exclude(id=self.id) # do wykluczenia te właśnie dodawaną lekcje
+
+            if conflicting_lessons.exists():
+                raise ValidationError('Nauczyciel jest już przypisany do zajęć w tym dniu i godzinie.')
+            
+        if self.class_id and self.day and start_time:
+            conflicting_lessons = Lesson.objects.filter(
+                class_id=self.class_id,
+                day=self.day,
+                start_time=start_time
+            ).exclude(id=self.id)
+
+            if conflicting_lessons.exists():
+                raise ValidationError('Ta klasa ma już zajęcia w tym dniu i godzinie.')
+            
+        if self.room_id and self.day and start_time:
+            conflicting_lessons = Lesson.objects.filter(
+                room_id=self.room_id,
+                day=self.day,
+                start_time=start_time
+            ).exclude(id=self.id)
+
+            if conflicting_lessons.exists():
+                raise ValidationError('Ta sala jest już zajęta w tym dniu i godzinie.')
+
 
 '''
 Próba oddzielenia lekcji od instancji lekcji.

@@ -35,7 +35,7 @@ def home_redirect(request):
 def teacher_subjects_view(request):
     user = request.user
     teacher = user.teacher
-    # lessons = Lesson.objects.filter(teacher_id = teacher.id)
+    lessons = Lesson.objects.filter(teacher_id = teacher.id)
     students = Student.objects.all()
 
     dist_lessons = Lesson.objects.filter(teacher_id=teacher).values(
@@ -70,15 +70,35 @@ def teacher_subjects_view(request):
         })
 
     jsonData = json.dumps(data)
-    print(jsonData)
+
+    # do planu zajęć
+    hours_choices = Lesson.LESSON_HOURS_CHOICES
+    hours = []
+    for hour_choice in hours_choices:
+        hours.append(hour_choice[0])
+
+    days_choice = Lesson.DAY_CHOICES
+    days = []
+    for day_choice in days_choice:
+        days.append(day_choice[0])
+
+    hours_lesson = {}
+    for lesson in lessons:
+        hours_lesson[lesson.lesson_hours] = [Lesson.objects.filter(teacher_id = teacher.id, lesson_hours=lesson.lesson_hours)]
+
+    print(hours_lesson)
     
     form = CreateAssigment(teacher = request.user.teacher)
 
     context = {
-        'lessons': dist_lessons,
+        'dist_lessons': dist_lessons,
         'form': form,
         'students': students,
-        'jsonData': jsonData
+        'jsonData': jsonData,
+        'hours': hours,
+        'lessons': lessons,
+        'hours_lesson': hours_lesson,
+        'days': days
     }
 
     return render(request, 'teachers/teacher_subjects.html', context=context)
@@ -212,6 +232,18 @@ def gradebook_view(request, classroom, letter, subject_name):
                             
                             midterm_grade.update(value=grade_value)
 
+                        else:
+                            new_grade = Grade(
+                            teacher = request.user.teacher,
+                            student = student,
+                            subject = subject,
+                            assigment = assigment_object,
+                            value = grade_value,
+                            description = grade_description
+                            )
+
+                            new_grade.save()
+
                     elif assigment_object.final_grade == True:
                         is_final_grade = Grade.objects.filter(
                             teacher = request.user.teacher,
@@ -229,18 +261,18 @@ def gradebook_view(request, classroom, letter, subject_name):
                                 assigment__final_grade=True)
                             
                             final_grade.update(value=grade_value)
-                        
-                    else:
-                        new_grade = Grade(
+                        else:
+                            new_grade = Grade(
                             teacher = request.user.teacher,
                             student = student,
                             subject = subject,
                             assigment = assigment_object,
                             value = grade_value,
                             description = grade_description
-                        )
+                            )
 
-                        new_grade.save()
+                            new_grade.save()
+                        
 
         return redirect(reverse('gradebook', args=(classroom, letter, subject_name)))
 

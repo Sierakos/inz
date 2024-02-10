@@ -67,22 +67,41 @@
                           <thead>
                               <tr>
                                   <th>Przedmiot</th>
-                                  <th>Oceny</th>                                 
+                                  <th>Oceny</th>
+                                  <th>Śródroczna</th>
+                                  <th>Końcowa</th>                                    
                               </tr>
                           </thead>
 
                           <tbody>
                             {% for subject, grades in student_grades.items %}
-                            <tr>
+                              <tr>
                                 <td>
                                   {{subject}}
                                 </td>
                                 <td>
-                                  {% for grade in grades %}
-                                    {{ grade }}
+                                  {% for key, grades_all in grades.items %}
+                                    {% if key == 'grades' %}
+                                      {% for grade in grades_all %}
+                                        {{ grade }}
+                                      {% endfor %}
+                                    {% endif %}
                                   {% endfor %}
                                 </td>
-                            </tr>
+                                <td>
+                                {% for key, grade in grades.items %}
+                                  {% if key == 'midterm_grade' %}
+                                    {{ grade }}
+                                  {% endif %}
+                                {% endfor %}
+                                </td>
+                                <td>
+                                  {% for key, grade in grades.items %}
+                                    {% if key == 'finalterm_grade' %}
+                                      {{ grade }}
+                                    {% endif %}
+                                  {% endfor %}
+                                  </td>
                             {% endfor %}
                           </tbody>
                             

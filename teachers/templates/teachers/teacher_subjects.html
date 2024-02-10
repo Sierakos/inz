@@ -1,107 +1,165 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block body %}
 <h3 class="m-4">Zajęcia</h3>
-      <div class="row">
-        <div class="col-12">
-          <div class="card border-primary ms-4 me-4 mb-4">
-            <div class="card-header">
-              <i class="fa-solid fa-list fa-lg"></i> Dziennik lekcji
-            </div>
-            <div class="card-body">
-              {% for lesson in lessons %}
-                <p class="card-text">  
-                  {% if lesson.teacher_id == request.user.teacher.id %}
-                    {{ lesson.class_id__class_name }} {{ lesson.class_id__class_letter }} | {{ lesson.subject_id__subject_name }}
-                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#student_list{{lesson.class_id}}">
-                      lista uczniów
+<div class="row">
+  <div class="col-12">
+    <div class="card border-primary ms-4 me-4 mb-4">
+      <div class="card-header">
+        <i class="fa-solid fa-list fa-lg"></i> Dziennik lekcji
+      </div>
+      <div class="card-body">
+        {% for lesson in dist_lessons %}
+          <p class="card-text">  
+            {% if lesson.teacher_id == request.user.teacher.id %}
+              {{ lesson.class_id__class_name }} {{ lesson.class_id__class_letter }} | {{ lesson.subject_id__subject_name }}
+              <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#student_list{{lesson.class_id}}">
+                lista uczniów
+              </button>
+              <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'gradebook' classroom=lesson.class_id__class_name letter=lesson.class_id__class_letter subject_name=lesson.subject_id__subject_name %}'">
+                otwórz dziennik
+              </button>
+              <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'lessons_view' classroom=lesson.class_id__class_name letter=lesson.class_id__class_letter subject_name=lesson.subject_id__subject_name %}'">
+                Pokaż zajęcia
+              </button>
+              <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}">
+                Wykres
+              </button>
+            {% endif %}
+          </p>
+        
+        
+
+            <!-- MODAL UCZNIOWIE DANEJ KLASY -->
+          <div class="modal" id="student_list{{lesson.class_id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    Lista uczniów
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                {% for student in students %}
+                  {% if student.class_id.id == lesson.class_id %}
+                  <p>
+                    {{ student }}
+                    <button type="button" class="btn btn-outline-warning btn-sm" onclick="window.location.href='{% url "contact_parent" student=student.id %}'">
+                      Wyślij e-mail do opiekuna
                     </button>
-                    <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'gradebook' classroom=lesson.class_id__class_name letter=lesson.class_id__class_letter subject_name=lesson.subject_id__subject_name %}'">
-                      otwórz dziennik
-                    </button>
-                    <button type="button" class="btn btn-outline-success btn-sm" onclick="window.location.href='{% url 'lessons_view' classroom=lesson.class_id__class_name letter=lesson.class_id__class_letter subject_name=lesson.subject_id__subject_name %}'">
-                      Pokaż zajęcia
-                    </button>
-                    <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}">
-                      Wykres
-                    </button>
+                    
+                  </p>
                   {% endif %}
-                </p>
-              
-              
-
-                  <!-- MODAL UCZNIOWIE DANEJ KLASY -->
-                <div class="modal" id="student_list{{lesson.class_id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">
-                          Lista uczniów
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true"></span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                      {% for student in students %}
-                        {% if student.class_id.id == lesson.class_id %}
-                        <p>
-                          {{ student }}
-                          <button type="button" class="btn btn-outline-warning btn-sm" onclick="window.location.href='{% url "contact_parent" student=student.id %}'">
-                            Wyślij e-mail do opiekuna
-                          </button>
-                          
-                        </p>
-                        {% endif %}
-                      {% endfor %}
-                      </div>
-                      <div class="modal-footer">
-                        <form action="#" method="POST">
-                          {% csrf_token %}
-                          <input type="submit" class="btn btn-primary" value="Delete">
-                        </form>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                      </div>
-                    </div>
-                  </div>
+                {% endfor %}
                 </div>
-
-                <!-- MODAL WYKRES -->
-                <div class="modal" id="student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">
-                          Wykres ocen uczniów
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true"></span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        <div>
-                          <canvas id="student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}" class="myChart"></canvas>
-                        </div>
-                      </div>
-                      <div class="modal-footer">
-                        <!-- <form action="#" method="POST">
-                          {% csrf_token %}
-                          <input type="submit" class="btn btn-primary" value="Delete">
-                        </form> -->
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wyjdź</button>
-                      </div>
-                    </div>
-                  </div>
+                <div class="modal-footer">
+                  <form action="#" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" value="Delete">
+                  </form>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
-
-              {% endfor %}
-
-
+              </div>
             </div>
           </div>
-        </div>
+
+          <!-- MODAL WYKRES -->
+          <div class="modal" id="student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}" tabindex="-1" aria-labelledby="myModalLabel1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">
+                    Wykres ocen uczniów
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div>
+                    <canvas id="student_chart_{{lesson.class_id}}_{{lesson.class_id__class_letter}}_{{lesson.subject_id__id}}" class="myChart"></canvas>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <!-- <form action="#" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" value="Delete">
+                  </form> -->
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Wyjdź</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        {% endfor %}
+
+
       </div>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </div>
+  </div>
+</div>
+
+
+<h3 class="m-4">Mój plan zajęć</h3>
+<div class="row">
+  <div class="col-12">
+    <div class="card border-primary ms-4 me-4 mb-4">
+      <div class="card-header">
+        <i class="fa-solid fa-list fa-lg"></i> Plan zajęć
+      </div>
+      <div class="card-body">
+        
+        <table class="table table-striped table-bordered text-center">
+          <thead class="table-dark">
+          <tr>
+            <th scope="col">Godziny</th>
+            {% for hour in hours %}
+              <th scope="col">{{hour}}</th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody>
+            {% for day in days %}
+              <tr>
+                
+              <th scope="row">{{day}}</th>
+                {% for hour in hours %}
+                  <td>
+                    {% for lesson_hour, lessons_querysets in hours_lesson.items %}
+                      {% for lesson_queryset in lessons_querysets %}
+                        {% for lesson in lesson_queryset %}
+                          {% if lesson.day == day %}
+                            {% if lesson.lesson_hours == hour %}
+                              <b>{{lesson.subject_id}}</b><br>
+                              sala: {{lesson.room_id}}<br>
+                              klasa: {{lesson.class_id.class_name}}{{lesson.class_id.class_letter}}
+                            {% endif %}
+                          {% endif %}
+                        {% endfor %}
+                      {% endfor %}
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
   var data = '{{ jsonData|safe }}';
   var jsonData = JSON.parse(data);
@@ -126,7 +184,6 @@
     var wybrane_dane = jsonData.filter(function(item) {
         return full_key in item;
     });
-    console.log(full_key)
 
     student_avarage = Object.values(Object.values(wybrane_dane[0]))[0]
     
@@ -167,35 +224,5 @@
     }
   }
 
-  // Event listener do zniszczenia i ponownego utworzenia wykresu po kliknięciu przycisku
-  document.getElementById('student_chart_button').addEventListener('click', function() {
-    Array.from(canvases).forEach(function(canvas) {
-      destroyChart(canvas);
-
-      // Utwórz nowy wykres
-      const ctx = canvas.getContext('2d');
-      const newChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['uczen_1', 'uczen_2'],
-          datasets: [{
-            label: 'Oceny',
-            data: [Math.random() * 5, Math.random() * 5], // Przykładowe losowe dane
-            borderWidth: 1
-          }]
-        },
-        options: {
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-
-      // Przechowaj nowy obiekt Chart jako atrybut elementu canvas
-      canvas.chart = newChart;
-    });
-  });
 </script>
 {% endblock %}

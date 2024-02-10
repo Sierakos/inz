@@ -34,9 +34,13 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         if instance.user_type == "Admin":
             Admin.objects.create(admin=instance)
+        if instance.user_type == "Staff":
+            Admin.objects.create(admin=instance)
 
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
     if instance.user_type == "Admin":
         instance.admin.save()
+    if instance.user_type == "Staff":
+        instance.staff.save()

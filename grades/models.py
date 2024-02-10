@@ -47,6 +47,18 @@ class Grade(models.Model):
     @staticmethod
     def get_all_student_subject_grades(student, subject):
         student_grades = Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=False, assigment__final_grade=False)
+
+        if Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=True).exists():
+            midterm_grade = Grade.objects.get(student=student, subject=subject, assigment__midterm_grade=True).value
+        else:
+            midterm_grade = 0
+
+        if Grade.objects.filter(student=student, subject=subject, assigment__final_grade=True).exists():
+            final_grade = Grade.objects.get(student=student, subject=subject, assigment__final_grade=True).value
+        else:
+            final_grade = 0
+
+        term_grades = [midterm_grade, final_grade]
         grades = []
         for student_grade in student_grades:
             conv_value = 0
@@ -58,7 +70,7 @@ class Grade(models.Model):
                 conv_value = f"{int(student_grade.value)}"
             grades.append(conv_value)
 
-        return grades
+        return grades, term_grades
 
 
     @staticmethod
@@ -66,7 +78,7 @@ class Grade(models.Model):
         student_grades = Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=False, assigment__final_grade=False)
 
         if Grade.objects.filter(student=student, subject=subject, assigment__midterm_grade=True).exists():
-            midterm_grade = Grade.objects.get(student=student, subject=subject, assigment__midterm_grade=True).value
+            midterm_grade = Grade.objects.get(student=student, subject=subject, assigment__midterm_grade=True).value   
         else:
             midterm_grade = 0
 
@@ -131,6 +143,10 @@ class Grade(models.Model):
             avarage = (grade_sum / weight_sum)
             
         return round(avarage,2)
+
+        
+
+
 
     def display_value(self):
         if self.value % 1 == 0.25:
