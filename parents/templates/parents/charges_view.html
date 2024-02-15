@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="row justify-content-center">
+    <div class="container">
+        <div class="row">
+          <div class="col-sm">
+            <div class="card border-primary mb-3 mt-4" style="max-width: 100%; margin:auto;">
+                <div class="card-header">
+                    <h3>Podopieczni</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        
+                        <table class="table table-hover">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID studenta</th>
+                                <th scope="col">Nazwisko i imię studenta</th>
+                                <th scope="col">Klasa</th>
+                                <th scope="col">Akcje</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for student in students %}
+                                <tr class="table-primary">
+                                    <td>{{ student.id }}</td>
+                                    <td>{{student}}</td>
+                                    <td>{{student.class_id.class_name}} {{student.class_id.class_letter}}</td>
+                                    <td>
+                                        <a href="{% url 'student_grades' id=student.id %}"><i class="fa-solid fa-book"></i></a> 
+                                        <a href="{% url 'student_attendance' id=student.id %}"><i class="fa-solid fa-clipboard-list"></i></a> 
+                                        <a href="{% url 'student_report' id=student.id %}"><i class="fa-solid fa-message"></i></a>
+                                        <a href="{% url 'teacher_list_view' id=student.id %}"><i class="fa-solid fa-list"></i></a>
+                                    </td>
+                                </tr>
+                              {% endfor %}
+                          </table>
+                    </p>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+{% endblock %}

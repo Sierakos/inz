@@ -67,15 +67,8 @@
 
                 {% if request.user.parent %}
                 <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fa-solid fa-plus fa-lg"></i> Dzieci
-                  </a>
-                </li>
-                
-
-                <li class="nav-item">
-                  <a class="nav-link" href="#">
-                    <i class="fa-solid fa-plus fa-lg"></i> Wiadomości
+                  <a class="nav-link" href="{% url 'charges' %}">
+                    <i class="fa-solid fa-plus fa-lg"></i> Podopieczni
                   </a>
                 </li>
                 {% endif %}
@@ -92,7 +85,7 @@
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">
+                  <a class="nav-link" href="{% url 'student_attendance' id=request.user.student.id %}">
                     <i class="fa-solid fa-plus fa-lg"></i> Moja frekwencja
                   </a>
                 </li>

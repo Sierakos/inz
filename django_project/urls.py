@@ -25,6 +25,7 @@ urlpatterns = [
     # path('grades/', include('grades.urls')),
     path('teacher/', include('teachers.urls')),
     path('staff/', include('staff.urls')),
+    path('parent/', include('parents.urls')),
     path('chat/', include('chat.urls')),
     path('', include('home.urls')),
 ]
