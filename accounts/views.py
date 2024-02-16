@@ -107,7 +107,7 @@ def create_view(request):
                 print("nie valid form")
 
         # tworzenie RODZICA
-        if request.POST['user_type'] == 'Parent':
+        if 'Parent' in request.POST['user_type']:
             user_form = CreateUserForm(request.POST)
             if user_form.is_valid():
                 user = user_form.save(commit=False)
@@ -127,6 +127,8 @@ def create_view(request):
                 return redirect(reverse('create'))
             else:
                 print("nie valid form")
+
+        print(request.POST)
 
     else:
         user_form = CreateUserForm()

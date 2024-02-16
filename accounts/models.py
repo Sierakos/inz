@@ -8,10 +8,10 @@ from django.db.models.signals import post_save
 # Create your models here.
 
 class CustomUser(AbstractUser):
-    USER_TYPE = (("Admin", "Admin"), ("Staff", "Staff"), ("Teacher", "Teacher"), ("Student", "Student"), ("Parent", "Parent"))
+    # USER_TYPE = (("Admin", "Admin"), ("Staff", "Staff"), ("Teacher", "Teacher"), ("Student", "Student"), ("Parent", "Parent"))
     GENDER = [("M", "Male"), ("F", "Female")]
 
-    user_type = models.CharField(default="Admin", choices=USER_TYPE, max_length=10)
+    user_type = models.CharField(default="Admin",max_length=50)
     gender = models.CharField(max_length=1, choices=GENDER)
     address = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,15 +32,11 @@ class Admin(models.Model):
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        if instance.user_type == "Admin":
-            Admin.objects.create(admin=instance)
-        if instance.user_type == "Staff":
+        if "Admin" in instance.user_type:
             Admin.objects.create(admin=instance)
 
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
-    if instance.user_type == "Admin":
+    if "Admin" in instance.user_type:
         instance.admin.save()
-    if instance.user_type == "Staff":
-        instance.staff.save()

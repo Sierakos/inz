@@ -105,6 +105,9 @@
                             
                           
                       </table>
+                      {% if request.user.teacher %}
+                        tylko dla nauczyciela
+                      {% endif %}
                   </div>
               </div>
           </div>

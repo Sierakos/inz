@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h3 class="text-center m-4">Użytkownicy</h3>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card bg-secondary mb-3">
+                <div class="card-header">
+                    {% comment %} <i class="fa-solid fa-address-card"></i> {% endcomment %}
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr class="table-primary">
+                            <th scope="col">Sale klas</th>
+                            <th scope="col">Akcje</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for classroom in all_classrooms %}
+                            <tr class="table-primary">
+                                
+                                <td>
+                                    {{ classroom }}
+                                </td>
+                                <td>
+                                    <a href={% url 'update_classroom' id=classroom.id %} class="btn btn-outline-warning btn-sm">szczegóły</a>
+                                </td>
+                                
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+                </div>
+        </div>
+    </div>
+
+{% endblock %}

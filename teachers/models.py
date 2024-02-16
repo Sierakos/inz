@@ -17,11 +17,11 @@ class Teacher(models.Model):
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        if instance.user_type == "Teacher":
+        if "Teacher" in instance.user_type:
             Teacher.objects.create(teacher=instance)
 
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
-    if instance.user_type == "Teacher":
+    if "Teacher" in instance.user_type:
         instance.teacher.save()

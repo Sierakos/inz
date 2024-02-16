@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h3 class="text-center m-4">Użytkownicy</h3>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card bg-secondary mb-3">
+                <div class="card-header">
+                    {% comment %} <i class="fa-solid fa-address-card"></i> {% endcomment %}
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr class="table-primary">
+                            <th scope="col">Przedmiot</th>
+                            <th scope="col">Akcje</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for subject in all_subjects %}
+                            <tr class="table-primary">
+                                
+                                <td>
+                                    {{ subject }}
+                                </td>
+                                <td>
+                                    <a href={% url 'update_subject' id=subject.id %} class="btn btn-outline-warning btn-sm">szczegóły</a>
+                                </td>
+                                
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+                </div>
+        </div>
+    </div>
+
+{% endblock %}

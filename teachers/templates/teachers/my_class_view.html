@@ -58,8 +58,9 @@
                           <table class="table table-hover" style="min-height:200px;">
                               <thead>
                                 <tr>
-                                  <th scope="col">ID Ucznia</th>
-                                  <th scope="col">Nazwisko i imię Ucznia</th>
+                                  <th scope="col">ID ucznia</th>
+                                  <th scope="col">Nazwisko i imię ucznia</th>
+                                  <th scope="col">Zajęcia i data wystawienia</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -70,6 +71,9 @@
                                     </td>
                                     <td>
                                         {{ absent.student.student.first_name }} {{ absent.student.student.last_name }}
+                                    </td>
+                                    <td>
+                                        {{ absent.lesson.lesson.subject_id }} | {{ absent.get_formated_create_at }}
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -88,7 +92,7 @@
                         <thead>
                             <tr>
                             <th scope="col">ID studenta</th>
-                            <th scope="col">Nazwisko i imię studenta</th>
+                            <th scope="col">Nazwisko i imię ucznia</th>
                             <th scope="col">Klasa</th>
                             <th scope="col">Akcje</th>
                             </tr>

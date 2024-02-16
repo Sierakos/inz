@@ -9,10 +9,44 @@
                     {% comment %} <i class="fa-solid fa-address-card"></i> {% endcomment %}
                 </div>
                 <div class="card-body">
-                    Dodawanie / Edycja / Usuwanie | Ludzi
-                    Dodawanie / Edycja / Usuwanie | Klas
-                    Dodawanie / Edycja / Usuwanie | Przedmiotów
-                    Dodawanie / Edycja / Usuwanie | Pokoi?
+                    <table class="table table-hover">
+                        <thead>
+                          <tr class="table-primary">
+                            <th scope="col">Nazwa</th>
+                            <th scope="col">Akcje</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="table-primary">
+                            <td>Klasy</td>
+                            <td class="actions">
+                              <a class='btn btn-outline-primary' href="{% url 'class' %}">Przeglądaj</a>
+                              <a class='btn btn-outline-success' href="{% url 'create_class' %}">Stwórz</a>
+                            </td>
+                          </tr>
+                          <tr class="table-primary">
+                            <td>Sale klas</td>
+                            <td class="actions">
+                              <a class='btn btn-outline-primary' href="{% url 'classrooms' %}">Przeglądaj</a>
+                              <a class='btn btn-outline-success' href="{% url 'create_classroom' %}">Stwórz</a>
+                            </td>
+                          </tr>
+                          <tr class="table-primary">
+                            <td>Użytkownicy</td>
+                            <td class="actions">
+                              <a class='btn btn-outline-primary' href="{% url 'users' %}">Przeglądaj</a>
+                              <a class='btn btn-outline-success' href="{% url 'create' %}">Stwórz</a>
+                            </td>
+                          </tr>
+                          <tr class="table-primary">
+                            <td>Przedmioty</td>
+                            <td class="actions">
+                              <a class='btn btn-outline-primary' href="{% url 'subjects' %}">Przeglądaj</a>
+                              <a class='btn btn-outline-success' href="{% url 'create_subjects' %}">Stwórz</a>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                 </div>
                 </div>
         </div>

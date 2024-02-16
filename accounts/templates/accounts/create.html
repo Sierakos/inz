@@ -50,31 +50,30 @@
 
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script>
+
     // ukryj dodatkowe pola dla różnych typów użytkowników
     $('#div_id_teacher_subject').hide();
     $('#student_form').hide();
     $('#teacher_form').hide();
-    $(document).ready(function() {
-      $('#id_user_type').change(function() {
-        var selectedOption = $(this).val();
 
-        // pokaż odpowiednie pola dla różnych typów użytkowników
-        // oraz ukryj reszte pól
+    document.getElementById("id_user_type").addEventListener("change", function() {
+      var selectElement = document.getElementById("id_user_type");
+      var selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
+      console.log(selectedOptions)
 
-
-        if (selectedOption === 'Student') {
-          $('#student_form').show();
-        } else {
-          $('#student_form').hide();
-        }
-
-        if (selectedOption === 'Teacher') {
+      if (selectedOptions.includes("Teacher")) {
           $('#teacher_form').show();
-        } else {
+          console.log("abba")
+      } else {
           $('#teacher_form').hide();
-        }
+      }
 
-      });
+      if (selectedOptions.includes("Student")) {
+          $('#student_form').show();
+      } else {
+          $('#student_form').hide();
+      }
+
     });
   </script>
 {% endblock %}

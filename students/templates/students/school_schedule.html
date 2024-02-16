@@ -3,6 +3,11 @@
 {% load static %}
 
 {% block body %}
+<style>
+  .hidden {
+    display: none;
+  }
+</style>
 <h3 class="m-4">Mój plan zajęć</h3>
 <div class="row">
   <div class="col-12">
@@ -11,8 +16,15 @@
         <i class="fa-solid fa-list fa-lg"></i> Plan zajęć
       </div>
       <div class="card-body">
+
+        <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" onclick="showTable('table_term_1')" checked>
+          <label class="btn btn-outline-primary" for="btnradio1">semestr 1</label>
+          <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" onclick="showTable('table_term_2')" >
+          <label class="btn btn-outline-primary" for="btnradio2">semestr 2</label>
+        </div>
         
-        <table class="table table-striped table-bordered text-center">
+        <table id="table_term_1" class="table table-striped table-bordered text-center mt-2">
           <thead class="table-dark">
           <tr>
             <th scope="col">Godziny</th>
@@ -33,9 +45,11 @@
                         {% for lesson in lesson_queryset %}
                           {% if lesson.day == day %}
                             {% if lesson.lesson_hours == hour %}
-                              <b>{{lesson.subject_id}}</b><br>
-                              sala: {{lesson.room_id}}<br>
-                              {{lesson.teacher_id.teacher.last_name}}
+                              {% if lesson.sem_1 %}
+                                <b>{{lesson.subject_id}}</b><br>
+                                sala: {{lesson.room_id}}<br>
+                                {{lesson.teacher_id.teacher.last_name}}
+                              {% endif %}
                             {% endif %}
                           {% endif %}
                         {% endfor %}
@@ -48,8 +62,63 @@
           </tbody>
           </table>
 
+          <table id="table_term_2" class="table table-striped table-bordered text-center hidden mt-2">
+            <thead class="table-dark">
+            <tr>
+              <th scope="col">Godziny</th>
+              {% for hour in hours %}
+                <th scope="col">{{hour}}</th>
+              {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+              {% for day in days %}
+                <tr>
+                  
+                <th scope="row">{{day}}</th>
+                  {% for hour in hours %}
+                    <td>
+                      {% for lesson_hour, lessons_querysets in hours_lesson.items %}
+                        {% for lesson_queryset in lessons_querysets %}
+                          {% for lesson in lesson_queryset %}
+                            {% if lesson.day == day %}
+                              {% if lesson.lesson_hours == hour %}
+                                {% if lesson.sem_2 %}
+                                  <b>{{lesson.subject_id}}</b><br>
+                                  sala: {{lesson.room_id}}<br>
+                                  {{lesson.teacher_id.teacher.last_name}}
+                                {% endif %}
+                              {% endif %}
+                            {% endif %}
+                          {% endfor %}
+                        {% endfor %}
+                      {% endfor %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+            </table>
+
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  function showTable(tableName) {
+    // Ukryj wszystkie tabele
+    var tables = document.querySelectorAll('table');
+    tables.forEach(function(table) {
+      table.classList.add('hidden');
+    });
+    // Pokaż tylko wybraną tabelę
+    var selectedTable = document.getElementById(tableName);
+    if (selectedTable) {
+      selectedTable.classList.remove('hidden');
+    }
+  }
+
+</script>
+
 {% endblock %}

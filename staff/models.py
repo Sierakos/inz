@@ -15,11 +15,11 @@ class Staff(models.Model):
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        if instance.user_type == "Staff":
+        if "Staff" in instance.user_type:
             Staff.objects.create(staff=instance)
 
 
 @receiver(post_save, sender=CustomUser)
 def save_user_profile(sender, instance, **kwargs):
-    if instance.user_type == "Staff":
+    if "Staff" in instance.user_type:
         instance.staff.save()

@@ -32,9 +32,9 @@ class CreateUserForm(UserCreationForm):
     address = forms.CharField(label='Adres zamieszkania', 
                 widget=forms.TextInput(attrs={'placeholder': 'Adres Zamieszkania', 'class': 'form-control'}))
 
-    user_type = forms.ChoiceField(label='Typ użytkownika',
+    user_type = forms.MultipleChoiceField(label='Typ użytkownika',
                 choices=USER_TYPE_CHOICES,
-                widget=forms.Select(attrs={'placeholder': 'Typ użytkownika', 'class': 'form-control'}))
+                widget=forms.SelectMultiple(attrs={'placeholder': 'Typ użytkownika', 'class': 'form-control'}))
 
     gender = forms.ChoiceField(label='Płeć',
                 choices=GENDER_CHOICES,
