@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.widgets import DateInput, TextInput
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UserChangeForm
 
 from .models import *
 from school.models import School, Class
@@ -13,8 +13,8 @@ from parents.models import Parent
 import re
 
 class CreateUserForm(UserCreationForm):
-    USER_TYPE_CHOICES = (("Admin", "Admin"), ("Staff", "Staff"), ("Teacher", "Teacher"), ("Student", "Student"), ("Parent", "Parent"))
-    GENDER_CHOICES = [("M", "Male"), ("F", "Female")]
+    USER_TYPE_CHOICES = (("Admin", "Admin"), ("Staff", "Dyrektor"), ("Teacher", "Nauczyciel"), ("Student", "Uczeń"), ("Parent", "Opiekun"))
+    GENDER_CHOICES = [("M", "Mężczyzna"), ("F", "Kobieta")]
 
     username = forms.CharField(label='Login', 
                 widget=forms.TextInput(attrs={'placeholder': 'Login', 'class': 'form-control'}))
@@ -97,6 +97,45 @@ class CreateUserForm(UserCreationForm):
             raise forms.ValidationError("Twoje hasła muszą być takie same.")
 
         return password2
+    
+class UpdateUserForm(UserChangeForm):
+    GENDER_CHOICES = [("M", "Male"), ("F", "Female")]
+
+    email = forms.EmailField(label='Email',
+        widget=forms.EmailInput(attrs={'placeholder': 'Email', 'class': 'form-control'}),
+        error_messages={'invalid': 'Twój email jest nieprawidłowy'})
+
+    first_name = forms.CharField(label='Imię', 
+                widget=forms.TextInput(attrs={'placeholder': 'Imię', 'class': 'form-control'}))
+
+    last_name = forms.CharField(label='Nazwisko', 
+                widget=forms.TextInput(attrs={'placeholder': 'Nazwisko', 'class': 'form-control'}))
+
+    address = forms.CharField(label='Adres zamieszkania', 
+                widget=forms.TextInput(attrs={'placeholder': 'Adres Zamieszkania', 'class': 'form-control'}))
+
+    gender = forms.ChoiceField(label='Płeć',
+                choices=GENDER_CHOICES,
+                widget=forms.Select(attrs={'placeholder': 'Płeć', 'class': 'form-control'}))
+    
+    password = None
+
+    def __init__(self, *args, **kwargs):
+        super(UserChangeForm, self).__init__(*args, **kwargs)
+
+        for fieldname in ['email']:
+            self.fields[fieldname].help_text = None
+            self.fields[fieldname].required = False
+
+    class Meta:
+        model = CustomUser
+        fields = ('email', 'first_name', 'last_name', 'address', 'gender')
+    
+    def clean_email(self, *args, **kwargs):
+        email = self.cleaned_data.get('email')
+        if CustomUser.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Użytkownik z tym adresem email już istnieje.")
+        return email
 
 class CreateStudentForm(forms.Form):
 

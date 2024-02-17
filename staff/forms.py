@@ -5,6 +5,32 @@ from schedule.models import Lesson
 from school.models import Class, Classroom
 from subjects.models import Subject
 from teachers.models import Teacher
+from schedule.models import Lesson, LessonInstance
+
+from datetime import datetime
+
+class LessonCreateForm(forms.ModelForm):
+    sem_1 = forms.BooleanField(label='Semester 1', required=False, widget=forms.RadioSelect(choices=((True, 'Tak'), (False, 'Nie'))))
+    sem_2 = forms.BooleanField(label='Semester 2', required=False, widget=forms.RadioSelect(choices=((True, 'Tak'), (False, 'Nie'))))
+    class Meta:
+        model = Lesson
+        fields = ['class_id', 'subject_id', 'teacher_id', 'room_id', 'term_id', 'day', 'lesson_hours', 'sem_1', 'sem_2']
+
+        labels = {
+            'class_id': 'Klasa',
+            'subject_id': 'Przedmiot',
+            'teacher_id': 'Prowadzący',
+            'room_id': 'Sala',
+            'term_id': 'Wybór semestru',
+            'day': 'Dzień',
+            'lesson_hours': 'Godziny odbywania sięzajęć',
+            'sem_1': 'Czy dane zajęcia będą odbywane w semestrze pierwszym?',
+            'sem_2': 'Czy dane zajęcia będą odbywane w semestrze drugim?',
+        }
+
+        widgets = {}
+        for field in fields:
+            widgets[field] = forms.Select(attrs={'class': 'form-control'})
 
 class ClassCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -42,7 +68,7 @@ class ClassCreateForm(forms.ModelForm):
         if existing_classes.exists():
             raise forms.ValidationError("Klasa o tym samym stopniu i literze już istnieje.")
 
-        return class_name
+        return cleaned_data
     
     def clean_counselor(self):
         cleaned_data = super().clean()
@@ -56,7 +82,26 @@ class ClassCreateForm(forms.ModelForm):
             if existing_class.exists():
                 raise forms.ValidationError("Ten nauczyciel jest już przypisany do innej klasy.")
 
-        return counselor_id
+        return cleaned_data
+
+class LessonInstanceUpdateForm(forms.ModelForm):
+    class Meta:
+        model = LessonInstance
+        fields = ['lesson_day']
+
+        labels = {
+            'lesson_day': 'Dzień odbywania się zajęć'
+        }
+
+        widgets = {
+            'lesson_day': forms.TextInput(attrs={'class': 'form-control', 'id': 'lesson_day'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(LessonInstanceUpdateForm, self).__init__(*args, **kwargs)
+        # Nadpisanie wartości daty w formularzu
+        if 'lesson_day' in self.initial:
+            self.initial['lesson_day'] = self.initial['lesson_day'].strftime('%d.%m.%Y')
     
 class ClassUpdateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

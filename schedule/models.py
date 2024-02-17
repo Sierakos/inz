@@ -47,6 +47,15 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.class_id} {self.subject_id} {self.day} {self.start_time} - {self.end_time} / {self.term_id}"
     
+    def get_formated_day(self):
+        return self.day.strftime('%d %B %Y')
+    
+    def get_formated_start_time(self):
+        return self.start_time.strftime('%H:%M')
+    
+    def get_formated_end_time(self):
+        return self.end_time.strftime('%H:%M')
+    
     @classmethod
     def get_lessons_with_correct_term(cls, id):
         current_date = datetime.now()

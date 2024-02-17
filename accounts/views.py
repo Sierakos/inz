@@ -17,19 +17,20 @@ def profile_view(request):
     # empty variables
     teacher_subjects = None
 
-    if account_type == 'Admin':
+    if 'Admin' in account_type:
         account_info = user.admin
-    elif account_type == 'Staff':
+    if 'Staff' in account_type:
         account_info = user.staff
-    elif account_type == 'Teacher':
+    if 'Teacher' in account_type:
         account_info = user.teacher
         teacher_subjects = account_info.subjects.all()
-    elif account_type == 'Student':
+    if 'Student' in account_type:
         account_info = user.student
-    elif account_type == 'Parent':
+    if 'Parent' in account_type:
         account_info = user.parent
     
     context = {
+        'user': user,
         'account_info': account_info,
         'teacher_subjects': teacher_subjects
     }

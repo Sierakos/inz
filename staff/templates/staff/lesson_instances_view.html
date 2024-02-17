@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h3 class="text-center m-4">Lekcje</h3>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card bg-secondary mb-3">
+                <div class="card-header">
+                    {% comment %} <i class="fa-solid fa-address-card"></i> {% endcomment %}
+                </div>
+                <div class="card-body">
+                    <input type="text" id="class-filter" placeholder="Wyszukaj w lekcjach" class="form-control">
+                    <table class="table table-hover mt-2">
+                        <thead>
+                          <tr class="table-primary">
+                            <th scope="col">ID lekcji</th>
+                            <th scope="col">Klasa</th>
+                            <th scope="col">Przedmiot</th>
+                            <th scope="col">Dzień</th>
+                            <th scope="col">Godziny</th>
+                            <th scope="col">Uwagi</th>
+                            <th scope="col">Akcje</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for lesson in lesson_instances %}
+                        <tr class="table-primary">
+                            <td>{{lesson.id}}</td>
+                            <td>{{lesson.lesson.class_id}}</td>
+                            <td>{{lesson.lesson.subject_id}}</td>
+                            <td>{{lesson.get_formated_day}}</td>
+                            <td>{{lesson.get_formated_start_time}} - {{lesson.get_formated_end_time}}</td>
+                            <td>
+                                {% if not lesson.is_started and not lesson.is_finished %}
+                                <span style="color: red">
+                                    Nierozpoczętę
+                                </span>
+                                {% elif lesson.is_started and not lesson.is_finished %}
+                                <span style="color: green">
+                                    Rozpoczętę
+                                <span>
+                                {% elif lesson.is_finished %}
+                                    Zakończone
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'update_lesson_instance' id=lesson.id %}" class="btn btn-outline-warning btn-sm">szczegóły</a>
+                            </td>
+                        </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+                </div>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#class-filter').on('input', function() {
+            var input = $(this).val().toLowerCase();
+            $('tr.table-primary').each(function() {
+                var classInfo = $(this).find('td').eq(0).text().toLowerCase();
+                if (classInfo.indexOf(input) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+    
+    // Pobierz referencję do pola daty
+    var lessonDayInput = document.getElementById('lesson_day');
+
+    // Ustaw funkcję obsługi zdarzenia na zmianę wartości w polu daty
+    lessonDayInput.addEventListener('change', function() {
+        // Pobierz wartość wprowadzoną przez użytkownika
+        var inputValue = this.value;
+        
+        // Podziel wartość na składniki: dzień, miesiąc i rok
+        var dateComponents = inputValue.split('-');
+        
+        // Utwórz nową datę w formacie "dzień-miesiąc-rok"
+        var formattedDate = dateComponents[2] + '-' + dateComponents[1] + '-' + dateComponents[0];
+        
+        // Ustaw nowy format daty w polu input
+        this.value = formattedDate;
+    });
+</script>
+
+{% endblock %}

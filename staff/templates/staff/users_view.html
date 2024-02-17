@@ -13,16 +13,18 @@
                         <thead>
                           <tr class="table-primary">
                             <th scope="col">Nazwisko i imię</th>
+                            <th scope="col">Akcje</th>
                           </tr>
                         </thead>
                         <tbody>
                         {% for user in all_users %}
                             <tr class="table-primary">
-                                
                                 <td>
                                     {{ user }}
                                 </td>
-                                
+                                <td>
+                                    <a href="{% url 'update_user' id=user.id %}" class="btn btn-outline-warning btn-sm">Szczegóły</a>
+                                </td>
                             </tr>
                           {% endfor %}
                         </tbody>

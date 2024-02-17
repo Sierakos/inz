@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block body %}
+<script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+<script src="jquery.ui.datepicker-pl.js"></script>
+<script>
+    $( function() {
+      $( "#lesson_day" ).datepicker({
+        dateFormat: 'dd.mm.yy',
+        monthNames: ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'], // Ustawienie nazw miesięcy po polsku
+        monthNamesShort: ['Sty', 'Lut', 'Mar', 'Kwi', 'Maj', 'Cze', 'Lip', 'Sie', 'Wrz', 'Paź', 'Lis', 'Gru'], // Skrócone nazwy miesięcy
+        dayNames: ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'], // Nazwy dni tygodnia
+        dayNamesShort: ['Nie', 'Pon', 'Wt', 'Śr', 'Czw', 'Pt', 'Sob'], // Skrócone nazwy dni tygodnia
+        dayNamesMin: ['N', 'Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So'], // Minimalne skrócone nazwy dni tygodnia
+        firstDay: 1
+      });
+    } );
+</script>
+<style>
+    .errorlist{
+        display: None;
+    }
+</style>
+    <h3 class="text-center m-4">Szczegóły instancji lekcji</h3>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card bg-secondary mb-3">
+                <div class="card-header">
+                    {% comment %} <i class="fa-solid fa-address-card"></i> {% endcomment %}
+                </div>
+                <div class="card-body">
+                    <form action="#" method="POST">
+                        {% csrf_token %}
+                        {{ form }}
+                        <label for="id_lesson_hours"> Godzina zajęć </label>
+                        <select name="lesson_hours" id="id_lesson_hours" class="form-control">
+                            <option value="8:00-8:45"
+                            {% if '8:00' in start_time %}
+                            selected
+                            {% endif %}
+                            >8:00-8:45</option>
+                          
+                            <option value="8:50-9:35"
+                            {% if '8:50' in start_time %}
+                            selected
+                            {% endif %}
+                            >8:50-9:35</option>
+                          
+                            <option value="9:45-10:30"
+                            {% if '9:45' in start_time %}
+                            selected
+                            {% endif %}
+                            >9:45-10:30</option>
+                          
+                            <option value="10:40-11:25"
+                            {% if '10:40' in start_time %}
+                            selected
+                            {% endif %}
+                            >10:40-11:25</option>
+                          
+                            <option value="12:40-13:25"
+                            {% if '12:40' in start_time %}
+                            selected
+                            {% endif %}
+                            >12:40-13:25</option>
+                          
+                            <option value="13:35-14:10"
+                            {% if '13:35' in start_time %}
+                            selected
+                            {% endif %}
+                            >13:35-14:10</option>
+                          
+                            <option value="14:15-15:00"
+                            {% if '14:15' in start_time %}
+                            selected
+                            {% endif %}
+                            >14:15-15:00</option>
+                          
+                            <option value="15:05-15:50"
+                            {% if '15:05' in start_time %}
+                            selected
+                            {% endif %}
+                            >15:05-15:50</option>
+                          
+                          </select>
+                        <button type="submit" class="btn btn-outline-success mt-2">Zatwierdź zmiany</button>
+                    </form>
+                </div>
+                </div>
+        </div>
+    </div>
+{% endblock %}

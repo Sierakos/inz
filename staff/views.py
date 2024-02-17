@@ -6,8 +6,12 @@ from school.models import Class, Classroom
 from teachers.models import Teacher
 from subjects.models import Subject
 from accounts.models import CustomUser
+from schedule.models import Lesson, LessonInstance
 
-from .forms import SubjectCreateForm, ClassroomCreateForm, ClassCreateForm, ClassUpdateForm, ClassroomUpdateForm, SubjectUpdateForm
+from .forms import SubjectCreateForm, ClassroomCreateForm, ClassCreateForm, ClassUpdateForm, ClassroomUpdateForm, SubjectUpdateForm, LessonCreateForm, LessonInstanceUpdateForm
+from accounts.forms import UpdateUserForm
+
+from datetime import datetime
 
 @login_required
 def staff_home(request):
@@ -66,6 +70,24 @@ def update_subject_view(request, id):
     }
 
     return render(request, 'staff/update_subject_view.html', context=context)
+
+@login_required
+def update_user_view(request, id):
+
+    user_instance = CustomUser.objects.get(id=id)
+
+    if request.method == "POST":
+        form = UpdateUserForm(request.POST, instance=user_instance)
+        if form.is_valid():
+            form.save()
+    else:
+        form = UpdateUserForm(instance=user_instance)
+
+    context = {
+        'form': form,
+    }
+
+    return render(request, 'staff/update_user_view.html', context=context)
 
 @login_required
 def subjects_view(request):
@@ -167,3 +189,65 @@ def class_view(request):
     }
 
     return render(request, 'staff/class_view.html', context=context)
+
+@login_required
+def lessons_view(request):
+
+    all_lessons = Lesson.objects.all()
+
+    context = {
+        'all_lessons': all_lessons,
+    }
+
+    return render(request, 'staff/lesson_view.html', context=context)
+
+@login_required
+def lesson_instances_view(request, id):
+
+    lesson = Lesson.objects.get(id=id)
+    lesson_instances = LessonInstance.objects.filter(lesson=lesson)
+
+    context = {
+        'lesson': lesson,
+        'lesson_instances': lesson_instances
+    }
+
+    return render(request, 'staff/lesson_instances_view.html', context=context)
+
+@login_required
+def update_lesson_instance_view(request, id):
+    lesson_instance = LessonInstance.objects.get(id=id)
+    start_time = lesson_instance.get_formated_start_time()
+    print(start_time)
+
+
+    if request.method == "POST":
+        date = request.POST['lesson_day']
+        formated_date = datetime.strptime(date, '%d.%m.%Y').date()
+        form = LessonInstanceUpdateForm(request.POST)
+        lesson_instance.lesson_day = formated_date
+        start_time, end_time = request.POST['lesson_hours'].split('-')
+        lesson_instance.lesson_start_time = start_time
+        lesson_instance.lesson_end_time = end_time
+        lesson_instance.save()
+
+    else:
+        form = LessonInstanceUpdateForm(instance=lesson_instance)
+
+    context = {
+        'form': form,
+        'start_time': start_time
+    }
+
+    return render(request, 'staff/update_lesson_instances_view.html', context=context)
+
+
+@login_required
+def create_lesson_view(request):
+    if request.method == 'POST':
+        form = LessonCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = LessonCreateForm()
+    return render(request, 'staff/create_lesson_view.html', {'form': form})

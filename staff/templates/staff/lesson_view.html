@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <h3 class="text-center m-4">Lekcje</h3>
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <div class="card bg-secondary mb-3">
+                <div class="card-header">
+                    {% comment %} <i class="fa-solid fa-address-card"></i> {% endcomment %}
+                </div>
+                <div class="card-body">
+                    <input type="text" id="class-filter" placeholder="Wyszukaj w lekcjach" class="form-control">
+                    <table class="table table-hover mt-2">
+                        <thead>
+                          <tr class="table-primary">
+                            <th scope="col">Lekcje</th>
+                            <th scope="col">Akcje</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {% for lesson in all_lessons %}
+                            <tr class="table-primary">
+                                
+                                <td>
+                                    {{ lesson.class_id.class_name }} {{ lesson.class_id.class_letter }} - {{ lesson.subject_id }} {{ lesson.day }} | {{ lesson.get_formated_start_time }} - {{ lesson.get_formated_end_time }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'lessons_instances' id=lesson.id %}" class="btn btn-outline-warning btn-sm">szczegóły</a>
+                                </td>
+                                
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+                </div>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#class-filter').on('input', function() {
+            var input = $(this).val().toLowerCase();
+            $('tr.table-primary').each(function() {
+                var classInfo = $(this).find('td').eq(0).text().toLowerCase();
+                if (classInfo.indexOf(input) > -1) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

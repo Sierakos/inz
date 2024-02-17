@@ -27,12 +27,12 @@ SECRET_KEY = 'django-insecure-v(0-gp4kqv5jaxuyxyumx4+rnj6qrm=1&&#zkj^2m9y8@jqg^i
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe'
 
 # Polskie czasy
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_project.settings')
-os.environ['LANG'] = 'en_US.UTF-8'
-locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+os.environ['LANG'] = 'pl_PL.UTF-8'
+locale.setlocale(locale.LC_ALL, 'pl_PL.UTF-8')
 
 LANGUAGE_CODE = 'pl'
 locale.setlocale(locale.LC_TIME, 'pl_PL.UTF-8')

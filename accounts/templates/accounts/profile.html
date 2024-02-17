@@ -10,7 +10,27 @@
             </div>
             <div class="card-body">
               <p class="card-text">
-                {{ account_info }}
+                Nazwisko: {{ user.last_name }}<br>
+                Imię: {{ user.first_name }}<br>
+                email: {{ user.email }}<br>
+                płeć: {{ user.gender }}<br>
+                adres zamieszkania: {{ user.address }}<br>
+                uprawnienia: 
+                {% if "Admin" in user.user_type %}
+                  Admin
+                {% endif %}
+                {% if "Staff" in user.user_type %}
+                  Dyrektor
+                {% endif %}
+                {% if "Teacher" in user.user_type %}
+                  Nauczyciel
+                {% endif %}
+                {% if "Student" in user.user_type %}
+                  Uczeń
+                {% endif %}
+                {% if "Parent" in user.user_type %}
+                  Opiekun
+                {% endif %}
               </p>
               {% if request.user.user_type == "Teacher" %}
                 <p class="card-text">
