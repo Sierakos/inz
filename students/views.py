@@ -109,14 +109,17 @@ def student_attendance_view(request, id):
     first_sem_present = 0
     first_sem_absent = 0
     first_sem_late = 0
+    first_sem_excused_absent = 0
 
     second_sem_present = 0
     second_sem_absent = 0
     second_sem_late = 0
+    second_sem_excused_absent = 0
 
     all_present = 0
     all_absent = 0
     all_late = 0
+    all_excused_absent = 0
 
     # count attendances per lesson
     for dist_lesson in dist_lessons:
@@ -124,12 +127,15 @@ def student_attendance_view(request, id):
         present_count_all = 0
         absent_count_all = 0
         late_count_all = 0
+        excused_absent_count_all = 0
         present_count_first_sem = 0
         absent_count_first_sem = 0
         late_count_first_sem = 0
+        excused_absent_count_first_sem = 0
         present_count_second_sem = 0
         absent_count_second_sem = 0
         late_count_second_sem = 0
+        excused_absent_count_second_sem = 0
 
         subject = Subject.objects.get(subject_name=dist_lesson['subject_id__subject_name'])
         sem_1 = bool(dist_lesson['sem_1'])
@@ -143,54 +149,66 @@ def student_attendance_view(request, id):
         absent_count_all = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.all(), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_absent=True).count()
         # ile spóźnień razem
         late_count_all = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.all(), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_late=True).count()
+        # ile usprawiedliwionych nieobecności razem
+        excused_absent_count_all = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.all(), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_excused_absent=True).count()
         # ile obecności 1_sem
         present_count_first_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=1), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_present=True).count()
         # ile nieobecności 1_sem
         absent_count_first_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=1), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_absent=True).count()
         # ile spóźnień 1_sem
         late_count_first_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=1), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_late=True).count()
+        # ile usprawiedliwionych nieobecności 1_sem
+        excused_absent_count_first_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=1), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_excused_absent=True).count()
         # ile obecności 2_sem
         present_count_second_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=2), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_present=True).count()
         # ile nieobecności 2_sem
         absent_count_second_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=2), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_absent=True).count()
         # ile spóźnień 2_sem
         late_count_second_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=2), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_late=True).count()
+        # ile usprawiedliwionych nieobecności 2_sem
+        excused_absent_count_second_sem = StudentAttendance.objects.filter(student=student, lesson_id__in=lesson_instances.filter(term=2), lesson__lesson_uuid=dist_lesson['unique_uuid'], is_excused_absent=True).count()
 
         if dist_lesson['subject_id__subject_name'] not in attendance_values:
-            attendance_values[dist_lesson['subject_id__subject_name']] = {'all': {'present': present_count_all, 'absent': absent_count_all, 'late': late_count_all},
-                                                                        '1': {'present': present_count_first_sem, 'absent': absent_count_first_sem, 'late': late_count_first_sem},
-                                                                        '2': {'present': present_count_second_sem, 'absent': absent_count_second_sem, 'late': late_count_second_sem}}
+            attendance_values[dist_lesson['subject_id__subject_name']] = {'all': {'present': present_count_all, 'absent': absent_count_all, 'late': late_count_all, 'excused_absent': excused_absent_count_all},
+                                                                        '1': {'present': present_count_first_sem, 'absent': absent_count_first_sem, 'late': late_count_first_sem, 'excused_absent': excused_absent_count_first_sem},
+                                                                        '2': {'present': present_count_second_sem, 'absent': absent_count_second_sem, 'late': late_count_second_sem, 'excused_absent': excused_absent_count_second_sem}}
         elif dist_lesson['subject_id__subject_name'] in attendance_values:
             attendance_values[dist_lesson['subject_id__subject_name']]['all']['present'] += present_count_all
             attendance_values[dist_lesson['subject_id__subject_name']]['all']['absent'] += absent_count_all
             attendance_values[dist_lesson['subject_id__subject_name']]['all']['late'] += late_count_all
+            attendance_values[dist_lesson['subject_id__subject_name']]['all']['excused_absent'] += excused_absent_count_all
 
             attendance_values[dist_lesson['subject_id__subject_name']]['1']['present'] += present_count_first_sem
             attendance_values[dist_lesson['subject_id__subject_name']]['1']['absent'] += absent_count_first_sem
             attendance_values[dist_lesson['subject_id__subject_name']]['1']['late'] += late_count_first_sem
+            attendance_values[dist_lesson['subject_id__subject_name']]['1']['excused_absent'] += excused_absent_count_first_sem
 
             attendance_values[dist_lesson['subject_id__subject_name']]['2']['present'] += present_count_second_sem
             attendance_values[dist_lesson['subject_id__subject_name']]['2']['absent'] += absent_count_second_sem
             attendance_values[dist_lesson['subject_id__subject_name']]['2']['late'] += late_count_second_sem
+            attendance_values[dist_lesson['subject_id__subject_name']]['2']['excused_absent'] += excused_absent_count_second_sem
         
 
         first_sem_present += present_count_first_sem
         first_sem_absent += absent_count_first_sem
         first_sem_late += late_count_first_sem
+        first_sem_excused_absent += excused_absent_count_first_sem
 
         second_sem_present += present_count_second_sem
         second_sem_absent += absent_count_second_sem
         second_sem_late += late_count_second_sem
+        second_sem_excused_absent += excused_absent_count_second_sem
 
         all_present += present_count_all
         all_absent += absent_count_all
         all_late += late_count_all
+        all_excused_absent += excused_absent_count_all
 
         
         
 
 
-    overall = [[first_sem_present, first_sem_absent, first_sem_late], [second_sem_present, second_sem_absent, second_sem_late], [all_present, all_absent, all_late]]
+    overall = [[first_sem_present, first_sem_absent, first_sem_late, first_sem_excused_absent], [second_sem_present, second_sem_absent, second_sem_late, second_sem_excused_absent], [all_present, all_absent, all_late, all_excused_absent]]
     
     jsonData = json.dumps(overall)
     
@@ -204,7 +222,6 @@ def student_attendance_view(request, id):
     }
 
     return render(request, 'students/student_attendance.html', context=context)
-
 
 def student_report_view(request, id):
 

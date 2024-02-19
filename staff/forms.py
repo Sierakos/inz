@@ -33,11 +33,13 @@ class LessonCreateForm(forms.ModelForm):
             widgets[field] = forms.Select(attrs={'class': 'form-control'})
 
 class ClassCreateForm(forms.ModelForm):
+    # counselor = forms.ModelChoiceField(queryset=Teacher.objects.exclude(class__isnull=False))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         existing_counselors_ids = Class.objects.values_list('counselor', flat=True)
         self.fields['counselor'].queryset = Teacher.objects.exclude(class__isnull=False) # class__isnull czyli czy nie ma przypisanej żadnej klasy
-        print(existing_counselors_ids)
+        # counselor = forms.ModelChoiceField(queryset=qs)
 
     class Meta:
         model = Class
@@ -70,19 +72,6 @@ class ClassCreateForm(forms.ModelForm):
 
         return cleaned_data
     
-    def clean_counselor(self):
-        cleaned_data = super().clean()
-        counselor_id = cleaned_data.get('counselor')
-
-        if counselor_id:
-            # Sprawdź, czy nauczyciel jest już przypisany do innej klasy
-            existing_class = Class.objects.filter(counselor_id=counselor_id)
-            if self.instance and self.instance.pk:
-                existing_class = existing_class.exclude(pk=self.instance.pk)  # Wykluczenie bieżącej instancji
-            if existing_class.exists():
-                raise forms.ValidationError("Ten nauczyciel jest już przypisany do innej klasy.")
-
-        return cleaned_data
 
 class LessonInstanceUpdateForm(forms.ModelForm):
     class Meta:

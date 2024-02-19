@@ -98,22 +98,24 @@
                   </a>
                 </li>
                 {% endif %}
-                jesteś zalogowany jako: {{ request.user.first_name }} {{ request.user.last_name }} : 
-                {% if request.user.admin %}
-                  Admin
-                {% endif %}
-                {% if request.user.staff %}
-                  Dyrektor
-                {% endif %}
-                {% if request.user.teacher %}
-                  Nauczyciel
-                {% endif %}
-                {% if request.user.parent %}
-                  Rodzic
-                {% endif %}
-                {% if request.user.student %}
-                  Uczeń
-                {% endif %}
+                <span style="color: green">
+                  jesteś zalogowany jako: {{ request.user.first_name }} {{ request.user.last_name }} : 
+                  {% if request.user.admin %}
+                    Admin
+                  {% endif %}
+                  {% if request.user.staff %}
+                    Dyrektor
+                  {% endif %}
+                  {% if request.user.teacher %}
+                    Nauczyciel
+                  {% endif %}
+                  {% if request.user.parent %}
+                    Rodzic
+                  {% endif %}
+                  {% if request.user.student %}
+                    Uczeń
+                  {% endif %}
+                </span>
               {% else %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'login' %}">
@@ -131,7 +133,7 @@
     <footer class="mt-auto mb-4">
       <div class="text-center">
         <span>
-          footer
+          Sebastian Sieradzki - dziennik szkolny
         </span>
       </div>
     </footer>

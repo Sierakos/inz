@@ -399,7 +399,8 @@ def check_attendance_view(request, id):
                 ).update(
                     is_present = True,
                     is_absent = False,
-                    is_late = False
+                    is_late = False,
+                    is_excused_absent = False
                 )
             elif attendance_value == "NB":
                 student_attendance = StudentAttendance.objects.filter(
@@ -408,7 +409,8 @@ def check_attendance_view(request, id):
                 ).update(
                     is_present = False,
                     is_absent = True,
-                    is_late = False
+                    is_late = False,
+                    is_excused_absent = False,
                 )
             elif attendance_value == "SP":
                 student_attendance = StudentAttendance.objects.filter(
@@ -417,7 +419,18 @@ def check_attendance_view(request, id):
                 ).update(
                     is_present = False,
                     is_absent = False,
-                    is_late = True
+                    is_late = True,
+                    is_excused_absent = False
+                )
+            elif attendance_value == "EA":
+                student_attendance = StudentAttendance.objects.filter(
+                    student=student,
+                    lesson=actual_lesson_instance
+                ).update(
+                    is_present = False,
+                    is_absent = False,
+                    is_late = False,
+                    is_excused_absent = True
                 )
 
     print(cleaned_attendances)

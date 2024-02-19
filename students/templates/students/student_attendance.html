@@ -80,13 +80,13 @@
                                 {{ attendance }}
                               </td>
                               <td>
-                                obecności: {{ data.1.present }}, nieobecności: {{ data.1.absent }}, spóźnienia: {{ data.1.late }}
+                                OB: {{ data.1.present }}, NO: {{ data.1.absent }}, SP: {{ data.1.late }}, NU: {{ data.1.excused_absent }}
                               </td>
                               <td>
-                                obecności: {{ data.2.present }}, nieobecności: {{ data.2.absent }}, spóźnienia: {{ data.2.late }}
+                                OB: {{ data.2.present }}, NO: {{ data.2.absent }}, SP: {{ data.2.late }}, NU: {{ data.2.excused_absent }}
                               </td>
                               <td>
-                                obecności: {{ data.all.present }}, nieobecności: {{ data.all.absent }}, spóźnienia: {{ data.all.late }}
+                                OB: {{ data.all.present }}, NO: {{ data.all.absent }}, SP: {{ data.all.late }}, NU: {{ data.all.excused_absent }}
                               </td>
                             <tr>
                             {% endfor %}
@@ -96,7 +96,7 @@
                               </td>
                               {% for data in overall %}
                                 <td>
-                                  obecności: {{data.0}}, nieobecności: {{data.1}}, spóźnienia: {{data.2}}
+                                  OB: {{data.0}}, NO: {{data.1}}, SP: {{data.2}}, NU: {{data.3}}
                                 </td>
                               {% endfor %}
                             </tr>
@@ -105,9 +105,9 @@
                             
                           
                       </table>
-                      {% if request.user.teacher %}
-                        tylko dla nauczyciela
-                      {% endif %}
+                      {% comment %} {% if request.user.teacher %}
+                        Pokaż nieobecności
+                      {% endif %} {% endcomment %}
                   </div>
               </div>
           </div>
@@ -148,7 +148,7 @@
     const NUMBER_CFG_FIRST_SEM = {count: DATA_COUNT_FIRST_SEM, min: 0, max: 100};
 
     const data_first_sem = {
-      labels: ['Obecności', 'Nieobecności', 'Spóźnienia'],
+      labels: ['Obecności', 'Nieobecności', 'Spóźnienia', 'Nieobecności usprawiedliwione'],
       datasets: [
         {
           label: 'Dataset 1',
@@ -180,7 +180,7 @@
     const NUMBER_CFG_SECOND_SEM = {count: DATA_COUNT_SECOND_SEM, min: 0, max: 100};
 
     const data_second_sem = {
-      labels: ['Obecności', 'Nieobecności', 'Spóźnienia'],
+      labels: ['Obecności', 'Nieobecności', 'Spóźnienia', 'Nieobecności usprawiedliwione'],
       datasets: [
         {
           label: 'Obecności',
@@ -212,7 +212,7 @@
     const NUMBER_CFG_ALL_SEM = {count: DATA_COUNT_ALL_SEM, min: 0, max: 100};
 
     const data_all_sem = {
-      labels: ['Obecności', 'Nieobecności', 'Spóźnienia'],
+      labels: ['Obecności', 'Nieobecności', 'Spóźnienia', 'Nieobecności usprawiedliwione'],
       datasets: [
         {
           label: 'Dataset 1',
