@@ -1,1 +1,1 @@
-Praca inżynierska start - 06.11.2023
+Praca zaimplementowana na potrzeby pracy inżynierskiej.
